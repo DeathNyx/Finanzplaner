@@ -52,6 +52,11 @@ const bildschirme = {
     tab: "kassen",
     zeichne: zeichneBuchung
   },
+  ausgleich: {
+    titel: "Ausgleich",
+    tab: "kassen",
+    zeichne: zeichneAusgleich
+  },
   uebertrag: {
     titel: "Übertrag",
     // Neuer Übertrag gehört zu "Buchen", ein bestehender zu "Kassen"

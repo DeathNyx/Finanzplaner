@@ -162,6 +162,11 @@ function zeichneKasseSeite(bereich, id, monat) {
     '  <a class="knopf zweit" href="#kasseform/' + kasse.id + '">Bearbeiten</a>' +
     "</div>";
 
+  // Bei gemeinsamen Kassen: wer schuldet wem?
+  if (kasse.art === "gemeinsam") {
+    html += ausgleichKarte(kasse);
+  }
+
   // Monat wählen
   html +=
     '<div class="monatswahl">' +
@@ -175,6 +180,9 @@ function zeichneKasseSeite(bereich, id, monat) {
     '<div class="karte summen">' +
     '  <div><span class="leise">Einnahmen</span>' + betragMitVorzeichen(summen.einnahmen, "einnahme") + "</div>" +
     '  <div><span class="leise">Ausgaben</span>' + betragMitVorzeichen(summen.ausgaben, "ausgabe") + "</div>" +
+    (summen.privat > 0
+      ? '  <div><span class="leise">davon privat bezahlt</span>' + betragMitVorzeichen(summen.privat, "einnahme") + "</div>"
+      : "") +
     (summen.uebertraege !== 0
       ? '  <div><span class="leise">Überträge</span>' +
         betragMitVorzeichen(Math.abs(summen.uebertraege), summen.uebertraege > 0 ? "einnahme" : "ausgabe") + "</div>"
@@ -207,7 +215,7 @@ function buchungsZeile(b) {
   // Kleine Zeile unter dem Namen: Datum, Notiz, wer bezahlt hat
   const details = [formatDatum(b.datum)];
   if (b.notiz) details.push(b.notiz);
-  if (person) details.push((b.typ === "ausgabe" ? "bezahlt von " : "von ") + person.name);
+  if (person) details.push((b.typ === "ausgabe" ? "privat bezahlt von " : "eingezahlt von ") + person.name);
 
   return (
     '<a class="zeile" href="#buchung/' + b.id + '">' +

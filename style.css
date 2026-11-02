@@ -683,3 +683,71 @@ body {
   display: block;
   margin: -6px 0 6px auto;
 }
+
+/* ---------- Ausgleich ---------- */
+.ausgleich-karte {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.ausgleich-karte p {
+  margin: 4px 0 0;
+}
+
+.zahlung {
+  padding: 8px 0 12px;
+  border-bottom: 1px solid var(--rahmen);
+  margin-bottom: 8px;
+}
+
+.zahlung .knopf {
+  margin-top: 8px;
+}
+
+.person-ausgleich {
+  padding: 8px 0 12px;
+  border-bottom: 1px solid var(--rahmen);
+  margin-bottom: 8px;
+}
+
+.person-kopf {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Eine Zeile mit Text links und Betrag rechts */
+.posten {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.posten > span:first-child {
+  flex: 1;
+}
+
+.posten.summe {
+  font-weight: 700;
+  border-top: 1px solid var(--rahmen);
+  margin-top: 4px;
+  padding-top: 6px;
+}
+
+/* Farbpunkte im Fließtext etwas kleiner */
+p .farbpunkt {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  vertical-align: -1px;
+}
+
+/* Keine Trennlinie nach dem letzten Eintrag */
+.zahlung:last-child,
+.person-ausgleich:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+}

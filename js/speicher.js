@@ -23,6 +23,7 @@ function leereDaten() {
     uebertraege: [],   // { id, vonKasseId, nachKasseId, betrag, datum, personId, notiz, vorlageId }
     dauerauftraege: [],// Vorlagen für alles, was jeden Monat wiederkommt
     schulden: [],      // { id, glaeubiger, restbetrag, rate, ... }
+    ausgleiche: [],    // { id, kasseId, vonPersonId, anPersonId, betrag, datum }
     kategorien: standardKategorien(),
     einstellungen: {}
   };
@@ -124,7 +125,8 @@ function personWirdVerwendet(id) {
     return b.bezahltVon === id || (b.anteile && b.anteile[id] !== undefined);
   });
   const inUebertrag = daten.uebertraege.some(function (u) { return u.personId === id; });
-  return inKasse || inBuchung || inUebertrag;
+  const inAusgleich = daten.ausgleiche.some(function (a) { return a.vonPersonId === id || a.anPersonId === id; });
+  return inKasse || inBuchung || inUebertrag || inAusgleich;
 }
 
 // Kategorie anhand ihrer ID finden
@@ -152,7 +154,8 @@ function kasseWirdVerwendet(id) {
   const inDauerauftrag = daten.dauerauftraege.some(function (d) {
     return d.kasseId === id || d.vonKasseId === id || d.nachKasseId === id;
   });
-  return inBuchung || inUebertrag || inDauerauftrag;
+  const inAusgleich = daten.ausgleiche.some(function (a) { return a.kasseId === id; });
+  return inBuchung || inUebertrag || inDauerauftrag || inAusgleich;
 }
 
 // Hier merken wir uns eine Warnung, falls beim Laden etwas schiefging

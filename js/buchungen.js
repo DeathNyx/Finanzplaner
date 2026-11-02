@@ -155,7 +155,26 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
         return p ? '<option value="' + pid + '"' + (pid === gewaehlt ? " selected" : "") + ">" + schuetzeText(p.name) + "</option>" : "";
       }).join("") +
       "  </select>" +
-      "</label>";
+      "</label>" +
+      '<p id="bPersonHinweis" class="leise klein"></p>';
+    zeigePersonHinweis();
+  }
+
+  // Erklärt kurz, was die Auswahl bei "Bezahlt von" bedeutet
+  function zeigePersonHinweis() {
+    const hinweis = document.getElementById("bPersonHinweis");
+    const feld = document.getElementById("bBezahlt");
+    if (!hinweis || !feld) return;
+    const name = feld.value ? personName(feld.value) : "";
+    if (zustand.typ === "ausgabe") {
+      hinweis.textContent = name
+        ? name + " hat privat bezahlt. Der Kassenstand ändert sich nicht, es zählt als Beitrag von " + name + "."
+        : "Das Geld kommt aus der Kasse. Der Kassenstand wird kleiner.";
+    } else {
+      hinweis.textContent = name
+        ? name + " zahlt Geld in die Kasse ein. Das zählt als Beitrag von " + name + "."
+        : "Zum Beispiel eine Erstattung. Sie wird nach der Aufteilung der Kasse verteilt.";
+    }
   }
 
   // Aufteilung anzeigen: zugeklappt als Übersicht, aufgeklappt zum Ändern
@@ -228,7 +247,7 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
 
   // Alte Fehlermeldung ausblenden, sobald man etwas ändert
   formular.addEventListener("input", function () { fehler.hidden = true; });
-  formular.addEventListener("change", function () { fehler.hidden = true; });
+  formular.addEventListener("change", function () { fehler.hidden = true; zeigePersonHinweis(); });
 
   // Wechsel zwischen Ausgabe und Einnahme
   formular.querySelectorAll('input[name="typ"]').forEach(function (knopf) {
