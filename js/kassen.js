@@ -162,6 +162,12 @@ function zeichneKasseSeite(bereich, id, monat) {
     '  <a class="knopf zweit" href="#kasseform/' + kasse.id + '">Bearbeiten</a>' +
     "</div>";
 
+  // Sparziel dieser Kasse
+  const sparziel = sparzielDerKasse(kasse.id);
+  if (sparziel) {
+    html += sparKarte(sparziel);
+  }
+
   // Anstehende Zahlungen dieser Kasse
   if (!kasse.archiviert) {
     html += demnaechstHtml(kasse);
@@ -611,6 +617,11 @@ function zeichneKassenFormular(bereich, id) {
 
     // Löschen ist nur erlaubt, wenn in der Kasse noch nichts gebucht wurde
     document.getElementById("loeschen").addEventListener("click", function () {
+      const ziel = sparzielDerKasse(kasse.id);
+      if (ziel) {
+        alert("Zu dieser Kasse gehört das Sparziel \"" + ziel.name + "\". Lösche zuerst das Sparziel unter Mehr › Sparziele.");
+        return;
+      }
       if (kasseWirdVerwendet(kasse.id)) {
         alert("In dieser Kasse gibt es schon Buchungen. Damit nichts verloren geht, kannst du sie nur archivieren.");
         return;

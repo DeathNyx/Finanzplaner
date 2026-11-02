@@ -76,6 +76,10 @@ function zeichneUebertrag(bereich, id, kasseId) {
     const andere = auswahlKassen.filter(function (k) { return k.id !== vonId; });
     const passend = andere.find(function (k) { return k.art !== von.art; }) || andere[0];
     nachId = passend.id;
+    // Ist das Ziel schon vorgegeben (z. B. von einem Sparziel), dieses nehmen
+    if (mit.nachKasseId && mit.nachKasseId !== vonId && auswahlKassen.some(function (k) { return k.id === mit.nachKasseId; })) {
+      nachId = mit.nachKasseId;
+    }
   }
 
   // Auswahlliste der Kassen
@@ -196,9 +200,9 @@ function zeichneUebertrag(bereich, id, kasseId) {
     speichereDaten();
     zeigeMeldung("Übertrag gespeichert");
 
-    // Danach die Seite der Kasse zeigen, von der man kam
-    const ziel = "#kasse/" + (kasseId || werte.vonKasseId);
-    if (!istNeu || kasseId) {
+    // Danach die Seite zeigen, von der man kam
+    const ziel = mit.zurueckZu || "#kasse/" + (kasseId || werte.vonKasseId);
+    if (!istNeu || kasseId || mit.zurueckZu) {
       zurueck(ziel);
     } else {
       location.replace(ziel);

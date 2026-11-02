@@ -75,6 +75,12 @@ function zeichneUebersicht(bereich) {
     html += '<h2 class="abschnitt">Offene Ausgleiche</h2><div class="karte liste">' + offen + "</div>";
   }
 
+  // Sparziele, die noch nicht erreicht sind
+  const offeneZiele = daten.sparziele.filter(function (z) { return !sparStatus(z).erreicht; });
+  if (offeneZiele.length > 0) {
+    html += '<h2 class="abschnitt">Sparziele</h2>' + offeneZiele.map(sparKarte).join("");
+  }
+
   // Schulden in Kurzform (nur wenn noch etwas offen ist)
   const offeneSchulden = daten.schulden.filter(function (s) { return restbetrag(s) > 0; });
   if (offeneSchulden.length > 0) {

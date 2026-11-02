@@ -80,7 +80,7 @@ function pruefeBackup(objekt) {
   }
 
   // Alle Listen, die es geben muss, müssen auch Listen sein
-  ["uebertraege", "dauerauftraege", "schulden", "kategorien", "ausgleiche"].forEach(function (name) {
+  ["uebertraege", "dauerauftraege", "schulden", "kategorien", "ausgleiche", "sparziele"].forEach(function (name) {
     if (inhalt[name] !== undefined && !Array.isArray(inhalt[name])) {
       throw new Error("Die Datei ist beschädigt (" + name + ").");
     }

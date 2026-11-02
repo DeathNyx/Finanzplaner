@@ -30,6 +30,11 @@
   box-sizing: border-box;
 }
 
+/* Versteckte Elemente bleiben immer versteckt, auch wenn eine andere Regel sie anzeigen würde */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -991,4 +996,25 @@ p .farbpunkt {
 /* Kleine Zeile, die umbrechen darf, statt abgeschnitten zu werden */
 .zweizeilig small.umbruch {
   white-space: normal;
+}
+
+/* ---------- Sparziele ---------- */
+.spar-karte {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.spar-karte .posten {
+  margin-top: 6px;
+}
+
+.balken.gross {
+  height: 14px;
+  border-radius: 7px;
+  margin: 4px 0 8px;
+}
+
+.balken.gross span {
+  border-radius: 7px;
 }

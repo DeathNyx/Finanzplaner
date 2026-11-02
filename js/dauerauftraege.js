@@ -352,8 +352,8 @@ function zeichneDauerauftrag(bereich, id) {
     "  </div>" +
     // Teil für Übertrag
     '  <div id="teilUebertrag">' +
-    '    <label class="feld">Von Kasse <select id="dVon">' + kassenOptionen(auftrag && auftrag.vonKasseId ? auftrag.vonKasseId : kassen[0].id) + "</select></label>" +
-    '    <label class="feld">An Kasse <select id="dNach">' + kassenOptionen(auftrag && auftrag.nachKasseId ? auftrag.nachKasseId : zweiteKasse) + "</select></label>" +
+    '    <label class="feld">Von Kasse <select id="dVon">' + kassenOptionen(auftrag && auftrag.vonKasseId ? auftrag.vonKasseId : (mit.vonKasseId || kassen[0].id)) + "</select></label>" +
+    '    <label class="feld">An Kasse <select id="dNach">' + kassenOptionen(auftrag && auftrag.nachKasseId ? auftrag.nachKasseId : (mit.nachKasseId || zweiteKasse)) + "</select></label>" +
     "  </div>" +
     '  <label class="feld">Wie oft' +
     '    <select id="dRhythmus">' +
@@ -370,7 +370,7 @@ function zeichneDauerauftrag(bereich, id) {
     '    <input id="dStart" type="month" value="' + (auftrag ? auftrag.startMonat : dieserMonat) + '">' +
     "  </label>" +
     '  <label class="feld">Letzter Monat (freiwillig)' +
-    '    <input id="dEnde" type="month" value="' + (auftrag && auftrag.endeMonat ? auftrag.endeMonat : "") + '">' +
+    '    <input id="dEnde" type="month" value="' + (auftrag && auftrag.endeMonat ? auftrag.endeMonat : (mit.endeMonat || "")) + '">' +
     "  </label>" +
     '  <p class="leise klein">Bei seltenen Zahlungen bestimmt der erste Monat den Rhythmus. Beispiel: jährlich mit erstem Monat Januar 2027 heißt jedes Jahr im Januar.</p>' +
     '  <p class="leise klein">Letzter Monat: leer lassen, wenn es kein Ende gibt. Für Raten trägst du den Monat der letzten Rate ein.</p>' +

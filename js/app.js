@@ -65,6 +65,16 @@ const bildschirme = {
     tab: "mehr",
     zeichne: zeichneDauerauftrag
   },
+  sparziele: {
+    titel: "Sparziele",
+    tab: "mehr",
+    zeichne: zeichneSparziele
+  },
+  sparziel: {
+    titel: "Sparziel",
+    tab: "mehr",
+    zeichne: zeichneSparziel
+  },
   schulden: {
     titel: "Schulden und Raten",
     tab: "mehr",

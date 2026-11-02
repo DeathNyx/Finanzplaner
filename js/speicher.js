@@ -24,6 +24,7 @@ function leereDaten() {
     dauerauftraege: [],// Vorlagen für alles, was jeden Monat wiederkommt
     schulden: [],      // { id, name, glaeubiger, rest, stichtag, rate, notiz }
     ausgleiche: [],    // { id, kasseId, vonPersonId, anPersonId, betrag, datum }
+    sparziele: [],     // { id, name, kasseId, zielbetrag, zielMonat }
     kategorien: standardKategorien(),
     einstellungen: {}
   };
