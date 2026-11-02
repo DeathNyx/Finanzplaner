@@ -15,7 +15,7 @@
 // DATEIEN eingetragen und die VERSION um eins erhöht werden.
 // ============================================
 
-const VERSION = 3;
+const VERSION = 4;
 const CACHE_NAME = "finanzplaner-v" + VERSION;
 
 // Nach so vielen Millisekunden ohne Antwort wird der Cache genommen
@@ -46,6 +46,7 @@ const DATEIEN = [
   "./js/dauerauftraege.js",
   "./js/schulden.js",
   "./js/sparziele.js",
+  "./js/diagramme.js",
   "./js/kategorien.js",
   "./js/backup.js",
   "./js/installieren.js",

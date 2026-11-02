@@ -14,6 +14,7 @@ Persönliche Finanzplanung mit Kassen. Läuft im Browser, auch am Handy, ganz oh
 - **Übersicht** über alle Kassen und **Monatsübersicht** mit Kategorien
 - **Daueraufträge** für Gehalt, Miete, Abos und monatliche Überträge, automatisch gebucht
 - **Schulden und Raten** mit Restbetrag und voraussichtlichem Ende
+- **Diagramme**: Einnahmen und Ausgaben, Übrig, Kategorien und Vermögen im Verlauf
 - **Sparziele** mit Fortschritt, nötiger Sparrate und voraussichtlichem Erreichen
 - **Backup** als Datei exportieren und wieder einlesen
 - **Beispieldaten** zum Ausprobieren (Mehr › Backup › Beispieldaten laden)
@@ -39,6 +40,7 @@ Persönliche Finanzplanung mit Kassen. Läuft im Browser, auch am Handy, ganz oh
 | `js/dauerauftraege.js` | Daueraufträge |
 | `js/schulden.js` | Schulden und Raten |
 | `js/sparziele.js` | Sparziele mit Fortschritt |
+| `js/diagramme.js` | Diagramme: Verlauf, Kategorien, Vermögen |
 | `js/kategorien.js` | Kategorien |
 | `js/backup.js` | Backup und Beispieldaten |
 | `js/installieren.js` | App installieren, Offline Betrieb starten |

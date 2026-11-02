@@ -65,6 +65,11 @@ const bildschirme = {
     tab: "mehr",
     zeichne: zeichneDauerauftrag
   },
+  diagramme: {
+    titel: "Diagramme",
+    tab: "monat",
+    zeichne: zeichneDiagramme
+  },
   sparziele: {
     titel: "Sparziele",
     tab: "mehr",

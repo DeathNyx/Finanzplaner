@@ -147,6 +147,9 @@ function zeichneMonat(bereich, monat) {
   const a = monatsAuswertung(monat);
   let html = "";
 
+  // Zu den Diagrammen
+  html += '<a class="knopf zweit verlauf-knopf" href="#diagramme">📊 Verlauf und Diagramme</a>';
+
   // Monat wählen
   html +=
     '<div class="monatswahl">' +

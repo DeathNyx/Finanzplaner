@@ -281,3 +281,76 @@ function monatsAuswertung(monat) {
   ergebnis.uebrig = ergebnis.einnahmen - ergebnis.ausgaben;
   return ergebnis;
 }
+
+// ============================================
+// Daten für die Diagramme
+// ============================================
+
+// Stand einer Kasse an einem bestimmten Tag (einschließlich).
+// Gab es die Kasse damals noch nicht, ist der Stand 0.
+function kontostandBis(kasse, datum) {
+  if (kasse.startdatum && kasse.startdatum > datum) return 0;
+  let stand = kasse.startbetrag || 0;
+  daten.buchungen.forEach(function (b) {
+    if (b.kasseId !== kasse.id || b.datum > datum) return;
+    if (b.typ === "einnahme") stand += b.betrag;
+    if (b.typ === "ausgabe" && !privatBezahlt(b)) stand -= b.betrag;
+  });
+  daten.uebertraege.forEach(function (u) {
+    if (u.datum > datum) return;
+    if (u.nachKasseId === kasse.id) stand += u.betrag;
+    if (u.vonKasseId === kasse.id) stand -= u.betrag;
+  });
+  return stand;
+}
+
+// Alle Zahlen für die Diagramme der letzten "anzahl" Monate.
+// "kasseId" leer = alle Kassen, sonst nur diese eine.
+// Überträge zählen wie in der Monatsübersicht nicht als Einnahme oder Ausgabe.
+function verlaufsDaten(anzahl, kasseId) {
+  const dieserMonat = heute().slice(0, 7);
+  const monate = [];
+  for (let i = anzahl - 1; i >= 0; i--) {
+    monate.push({
+      monat: verschiebeMonat(dieserMonat, -i),
+      einnahmen: 0,
+      ausgaben: 0,
+      kategorien: {},   // kategorieId: Ausgaben in diesem Monat
+      vermoegen: 0
+    });
+  }
+  const erster = monate[0].monat;
+  const nachMonat = {};
+  monate.forEach(function (m) { nachMonat[m.monat] = m; });
+
+  const kategorienGesamt = {};
+  daten.buchungen.forEach(function (b) {
+    if (kasseId && b.kasseId !== kasseId) return;
+    const m = nachMonat[b.datum.slice(0, 7)];
+    if (!m) return;
+    if (b.typ === "einnahme") m.einnahmen += b.betrag;
+    if (b.typ === "ausgabe") {
+      m.ausgaben += b.betrag;
+      m.kategorien[b.kategorieId] = (m.kategorien[b.kategorieId] || 0) + b.betrag;
+      kategorienGesamt[b.kategorieId] = (kategorienGesamt[b.kategorieId] || 0) + b.betrag;
+    }
+  });
+
+  // Vermögen am Monatsende (beim laufenden Monat: heute)
+  const kassen = kasseId
+    ? daten.kassen.filter(function (k) { return k.id === kasseId; })
+    : daten.kassen.filter(function (k) { return !k.archiviert; });
+  monate.forEach(function (m) {
+    const ende = m.monat + "-" + String(letzterTag(m.monat)).padStart(2, "0");
+    const stichtag = ende < heute() ? ende : heute();
+    m.vermoegen = kassen.reduce(function (s, k) { return s + kontostandBis(k, stichtag); }, 0);
+    m.uebrig = m.einnahmen - m.ausgaben;
+  });
+
+  // Kategorien nach Höhe sortiert, die größte zuerst
+  const kategorien = Object.keys(kategorienGesamt)
+    .map(function (id) { return { id: id, betrag: kategorienGesamt[id] }; })
+    .sort(function (a, b) { return b.betrag - a.betrag; });
+
+  return { monate: monate, kategorien: kategorien, vonMonat: erster, bisMonat: dieserMonat };
+}

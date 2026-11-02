@@ -12,6 +12,15 @@
   --akzent: #1f6feb;
   --rahmen: #dde2ea;
   --navi-hoehe: 68px;
+
+  /* Diagrammfarben (geprüft auf Farbschwäche und Kontrast) */
+  --serie-1: #2a78d6;   /* Einnahmen, Vermögen */
+  --serie-2: #eb6834;   /* Ausgaben */
+  --plus: #2a78d6;      /* Übrig */
+  --minus: #e34948;     /* Mehr ausgegeben */
+  --gitter: #e9ebef;
+  --achse: #c3c7cf;
+  --achsen-text: #6b7280;
 }
 
 /* Dunkler Modus, wenn das Handy auf dunkel eingestellt ist */
@@ -23,6 +32,14 @@
     --text-leise: #9aa4b5;
     --akzent: #4c8dff;
     --rahmen: #2c3442;
+
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
+    --plus: #3987e5;
+    --minus: #e66767;
+    --gitter: #262d39;
+    --achse: #3a4352;
+    --achsen-text: #9aa4b5;
   }
 }
 
@@ -1017,4 +1034,270 @@ p .farbpunkt {
 
 .balken.gross span {
   border-radius: 7px;
+}
+
+/* ---------- Diagramme ---------- */
+.verlauf-knopf {
+  margin: 0 0 8px;
+}
+
+/* Filter in einer Zeile über allen Diagrammen */
+.filter-zeile {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.filter-zeile .umschalter {
+  margin: 0;
+  flex: 1 1 200px;
+}
+
+.klein-umschalter span {
+  min-height: 44px;
+  font-size: 0.95rem;
+}
+
+.filter-zeile select {
+  flex: 1 1 140px;
+  min-height: 48px;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--flaeche);
+  border: 2px solid var(--akzent);
+  border-radius: 10px;
+}
+
+.diagramm {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.diagramm h2 {
+  margin-bottom: 4px;
+}
+
+.diagramm figcaption {
+  margin-bottom: 8px;
+}
+
+/* Die Zeichenfläche: Ankerpunkt für die Anzeige beim Antippen */
+.diagramm-flaeche {
+  position: relative;
+}
+
+.diagramm-svg {
+  display: block;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+.diagramm-svg .gitter {
+  stroke: var(--gitter);
+  stroke-width: 1;
+}
+
+.diagramm-svg .achse {
+  stroke: var(--achse);
+  stroke-width: 1;
+}
+
+.diagramm-svg .achsen-text {
+  fill: var(--achsen-text);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.diagramm-svg .wert-text {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.diagramm-svg .linie {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Punkte mit Ring in der Flächenfarbe */
+.diagramm-svg .endpunkt,
+.diagramm-svg .fadenpunkt {
+  stroke: var(--flaeche);
+  stroke-width: 2;
+}
+
+.diagramm-svg .fadenkreuz {
+  stroke: var(--achsen-text);
+  stroke-width: 1;
+  opacity: 0;
+}
+
+.diagramm-svg .fadenkreuz.sichtbar {
+  opacity: 1;
+}
+
+/* Punkt auf der Linie erscheint nur beim Antippen */
+.diagramm-svg .fadenpunkt {
+  opacity: 0;
+}
+
+.diagramm-svg .fadenpunkt.sichtbar {
+  opacity: 1;
+}
+
+/* Hinterlegung des gewählten Monats */
+.diagramm-svg .markierung {
+  fill: var(--text);
+  opacity: 0;
+}
+
+.diagramm-svg .markierung.sichtbar {
+  opacity: 0.06;
+}
+
+.diagramm-svg .markierung.aus {
+  display: none;
+}
+
+/* Unsichtbare, große Flächen zum Antippen */
+.diagramm-svg .trefferflaeche {
+  fill: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.diagramm-svg .trefferflaeche:focus-visible {
+  stroke: var(--akzent);
+  stroke-width: 2;
+}
+
+/* Anzeige beim Antippen */
+.diagramm-tipp {
+  position: absolute;
+  top: -6px;
+  min-width: 140px;
+  padding: 8px 10px;
+  background: var(--flaeche);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.tipp-titel {
+  color: var(--text-leise);
+  margin-bottom: 4px;
+}
+
+.tipp-zeile {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.tipp-zeile strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kurzer Strich in der Reihenfarbe statt eines Kästchens */
+.tipp-strich {
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Legende */
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.85rem;
+  color: var(--text-leise);
+}
+
+.legende span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legende i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* Tabellenansicht */
+.tabellen-ansicht {
+  margin-top: 8px;
+}
+
+.tabellen-ansicht summary {
+  color: var(--akzent);
+  font-weight: 600;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.tabellen-ansicht table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabellen-ansicht th,
+.tabellen-ansicht td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--rahmen);
+  text-align: right;
+}
+
+.tabellen-ansicht th:first-child,
+.tabellen-ansicht td:first-child {
+  text-align: left;
+}
+
+/* Kategorien als waagerechte Balken, antippbar */
+.kategorie-zeile {
+  display: block;
+  width: 100%;
+  padding: 8px 6px;
+  margin: 0 0 2px;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.kategorie-zeile[aria-pressed="true"] {
+  background: var(--hintergrund);
+  font-weight: 600;
+}
+
+.kategorie-spur {
+  display: block;
+  margin-top: 4px;
+}
+
+.kategorie-fuellung {
+  display: block;
+  height: 10px;
+  background: var(--serie-2);
+  border-radius: 0 4px 4px 0;
 }

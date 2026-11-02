@@ -59,6 +59,7 @@ function zeichneMehr(bereich) {
     '  <a href="#personen">👤 Personen</a>' +
     '  <a href="#kategorien">🏷️ Kategorien</a>' +
     '  <a href="#dauerauftraege">🔁 Daueraufträge</a>' +
+    '  <a href="#diagramme">📊 Diagramme</a>' +
     '  <a href="#sparziele">🎯 Sparziele</a>' +
     '  <a href="#schulden">📉 Schulden und Raten</a>' +
     (laeuftAlsApp() ? "" : '  <a href="#installieren">📲 App installieren</a>') +
