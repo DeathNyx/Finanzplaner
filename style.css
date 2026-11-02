@@ -1323,3 +1323,28 @@ p .farbpunkt {
 form .karte.warnung {
   margin: 8px 0 12px;
 }
+
+/* Kopfzeile: Titel links, Abgleich Anzeige rechts */
+.kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sync-anzeige {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

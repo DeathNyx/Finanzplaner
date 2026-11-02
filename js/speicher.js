@@ -189,6 +189,18 @@ function markiereAenderungen() {
   });
 }
 
+// Speichert Daten, die vom anderen Handy kamen. Sie werden NICHT als
+// eigene Änderung markiert, sonst würden sie gleich wieder hochgeladen.
+function speichereUebernommen() {
+  merkeStand();
+  try {
+    localStorage.setItem(SPEICHER_SCHLUESSEL, JSON.stringify(daten));
+    return true;
+  } catch (fehler) {
+    return false;
+  }
+}
+
 // Wurde ein Eintrag mit dieser ID einmal gelöscht?
 function istGeloescht(id) {
   return (daten.geloescht || []).some(function (m) { return m.id === id; });
@@ -201,6 +213,8 @@ function speichereDaten() {
   merkeStand();
   try {
     localStorage.setItem(SPEICHER_SCHLUESSEL, JSON.stringify(daten));
+    // Dem Abgleich Bescheid geben, dass es etwas Neues zum Hochladen gibt
+    window.dispatchEvent(new Event("finanzplaner:gespeichert"));
     return true;
   } catch (fehler) {
     alert("Speichern hat nicht geklappt. Vielleicht ist der Speicher des Browsers voll.");

@@ -15,7 +15,7 @@
 // DATEIEN eingetragen und die VERSION um eins erhöht werden.
 // ============================================
 
-const VERSION = 5;
+const VERSION = 6;
 const CACHE_NAME = "finanzplaner-v" + VERSION;
 
 // Nach so vielen Millisekunden ohne Antwort wird der Cache genommen
@@ -55,8 +55,16 @@ const DATEIEN = [
   "./js/firebase-konfig.js",
   "./js/verschluesselung.js",
   "./js/cloud.js",
-  "./js/abgleich.js"
+  "./js/abgleich.js",
+  "./js/sync.js"
 ];
+
+// Die Firebase Bausteine kommen von Google. Sie ändern sich nie (feste
+// Version im Namen), deshalb werden sie einmal gespeichert und dann
+// immer aus dem Speicher genommen. So klappt der Abgleich auch nach
+// einem Start ohne Internet, sobald wieder Netz da ist.
+const FIREBASE_CACHE = "finanzplaner-firebase";
+const FIREBASE_ADRESSE = "https://www.gstatic.com/firebasejs/";
 
 // Installation: alle Dateien in den Cache legen
 self.addEventListener("install", function (ereignis) {
@@ -73,7 +81,7 @@ self.addEventListener("activate", function (ereignis) {
     caches.keys()
       .then(function (namen) {
         return Promise.all(namen
-          .filter(function (name) { return name.startsWith("finanzplaner-") && name !== CACHE_NAME; })
+          .filter(function (name) { return name.startsWith("finanzplaner-v") && name !== CACHE_NAME; })
           .map(function (name) { return caches.delete(name); }));
       })
       .then(function () { return self.clients.claim(); })
@@ -84,7 +92,22 @@ self.addEventListener("activate", function (ereignis) {
 self.addEventListener("fetch", function (ereignis) {
   const anfrage = ereignis.request;
 
-  // Nur eigene Dateien und nur Lesen (GET) behandeln
+  // Firebase Bausteine: aus dem Speicher, sonst einmal holen und merken
+  if (anfrage.method === "GET" && anfrage.url.startsWith(FIREBASE_ADRESSE)) {
+    ereignis.respondWith(
+      caches.open(FIREBASE_CACHE).then(function (cache) {
+        return cache.match(anfrage).then(function (gespeichert) {
+          return gespeichert || fetch(anfrage).then(function (antwort) {
+            if (antwort.ok) cache.put(anfrage, antwort.clone());
+            return antwort;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // Sonst nur eigene Dateien und nur Lesen (GET) behandeln
   if (anfrage.method !== "GET" || new URL(anfrage.url).origin !== self.location.origin) return;
 
   ereignis.respondWith(netzZuerst(anfrage));

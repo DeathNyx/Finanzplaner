@@ -19,6 +19,7 @@ Persönliche Finanzplanung mit Kassen. Läuft im Browser, auch am Handy, ganz oh
 - **Backup** als Datei exportieren und wieder einlesen
 - **Beispieldaten** zum Ausprobieren (Mehr › Backup › Beispieldaten laden)
 - **Hinweise auf anstehende Zahlungen** und Warnung, wenn eine Kasse nicht reicht
+- **Gemeinsam nutzen** auf mehreren Handys: Live Abgleich über Firebase, Ende zu Ende verschlüsselt (Mehr › Abgleich)
 - **Als App installierbar** (PWA): eigenes Symbol auf dem Startbildschirm, funktioniert auch ohne Internet (Mehr › App installieren)
 
 ## Dateien
@@ -48,7 +49,8 @@ Persönliche Finanzplanung mit Kassen. Läuft im Browser, auch am Handy, ganz oh
 | `js/firebase-konfig.js` | Öffentliche Projektdaten von Firebase (für den Abgleich) |
 | `js/verschluesselung.js` | Verschlüsselung mit dem Haushalts Passwort |
 | `js/cloud.js` | Verbindung zu Firebase: Anmeldung, Haushalt, Einladung |
-| `js/abgleich.js` | Bildschirm „Abgleich“ (Mehr › Abgleich) |
+| `js/abgleich.js` | Bildschirm „Abgleich“ (Mehr › Abgleich) und Anzeige ☁️ oben |
+| `js/sync.js` | Live Abgleich: verschlüsselt hochladen, Änderungen empfangen |
 | `firestore.rules` | Sicherheitsregeln für Firebase (werden in der Firebase Konsole eingetragen) |
 | `anmeldetest.html` | Vorübergehende Testseite für Anmeldung und Verschlüsselung |
 | `js/app.js` | Start der App und Navigation |
