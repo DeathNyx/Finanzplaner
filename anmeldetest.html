@@ -51,6 +51,21 @@
     </div>
 
     <div class="karte">
+      <h2>3. Verschlüsselung testen</h2>
+      <p class="leise klein">Gib ein Test Passwort ein (nicht dein echtes). Die App verschlüsselt damit eine erfundene Buchung und zeigt, wie sie in der Cloud aussehen würde. Es wird nichts hochgeladen.</p>
+      <label class="feld">Test Passwort
+        <input id="testPasswort" type="text" autocomplete="off" placeholder="z. B. Sonne Kasse Fahrrad 7">
+      </label>
+      <button type="button" id="verschluesseln" class="knopf">Verschlüsselung testen</button>
+      <div id="tresorErgebnis" hidden>
+        <p class="klein"><strong>So läge die Buchung in der Cloud:</strong></p>
+        <pre id="geheimtext" class="protokoll"></pre>
+        <p class="klein"><strong>Wieder entschlüsselt:</strong></p>
+        <pre id="klartext" class="protokoll"></pre>
+      </div>
+    </div>
+
+    <div class="karte">
       <h2>Protokoll</h2>
       <p class="leise klein">Schick mir dieses Protokoll, dann sehe ich genau, was passiert ist.</p>
       <pre id="protokoll" class="protokoll"></pre>
@@ -67,6 +82,7 @@
     // Weiterleitung, Verbindung zur Datenbank.
     // ============================================
     import { FIREBASE_KONFIG, FIREBASE_VERSION } from "./js/firebase-konfig.js";
+    import * as tresor from "./js/verschluesselung.js";
 
     const zeilen = [];
 
@@ -118,6 +134,69 @@
       return code + (erklaerungen[code] ? " (" + erklaerungen[code] + ")" : "") +
         (fehler && fehler.message ? " · " + fehler.message : "");
     }
+
+    // ---------- Verschlüsselung testen (unabhängig von der Anmeldung) ----------
+    document.getElementById("verschluesseln").addEventListener("click", async function () {
+      const knopf = this;
+      const passwort = document.getElementById("testPasswort").value;
+      const hinweis = tresor.pruefePasswort(passwort);
+      if (hinweis) {
+        protokolliere("Passwort abgelehnt: " + hinweis);
+        status(hinweis);
+        return;
+      }
+
+      knopf.disabled = true;
+      knopf.textContent = "Schlüssel wird berechnet …";
+      try {
+        // Erfundene Buchung als Beispiel
+        const buchung = { betrag: 4299, typ: "ausgabe", notiz: "Wocheneinkauf", datum: "2026-11-02" };
+        const salz = tresor.neuesSalz();
+
+        const start = performance.now();
+        const schluessel = await tresor.schluesselAusPasswort(passwort, salz);
+        const dauer = Math.round(performance.now() - start);
+        protokolliere("Schlüssel berechnet in " + dauer + " ms");
+
+        const paket = await tresor.verschluesseln(schluessel, buchung);
+        protokolliere("Buchung verschlüsselt (" + paket.inhalt.length + " Zeichen Zeichensalat)");
+
+        const zurueck = await tresor.entschluesseln(schluessel, paket);
+        const gleich = JSON.stringify(zurueck) === JSON.stringify(buchung);
+        protokolliere("Entschlüsselt und identisch: " + (gleich ? "ja ✓" : "NEIN"));
+
+        // Mit falschem Passwort darf es nicht gehen
+        const falsch = await tresor.schluesselAusPasswort(passwort + "x", salz);
+        let falschLesbar = true;
+        try { await tresor.entschluesseln(falsch, paket); } catch (e) { falschLesbar = false; }
+        protokolliere("Mit falschem Passwort lesbar: " + (falschLesbar ? "JA (Fehler!)" : "nein ✓"));
+
+        // Prüfwert: erkennt, ob ein Passwort stimmt
+        const pruefwert = await tresor.erstellePruefwert(schluessel);
+        const richtigErkannt = await tresor.stimmtSchluessel(schluessel, pruefwert);
+        const falschErkannt = !(await tresor.stimmtSchluessel(falsch, pruefwert));
+        protokolliere("Passwortprüfung: richtig erkannt " + (richtigErkannt ? "✓" : "✗") + ", falsch erkannt " + (falschErkannt ? "✓" : "✗"));
+
+        // Schlüssel auf dem Handy merken und wieder holen
+        await tresor.merkeSchluessel("test", schluessel);
+        const gemerkt = await tresor.holeSchluessel("test");
+        const wiederLesbar = JSON.stringify(await tresor.entschluesseln(gemerkt, paket)) === JSON.stringify(buchung);
+        await tresor.vergissSchluessel("test");
+        protokolliere("Schlüssel gemerkt und wieder benutzt: " + (wiederLesbar ? "✓" : "✗"));
+
+        document.getElementById("geheimtext").textContent = JSON.stringify(paket, null, 1);
+        document.getElementById("klartext").textContent = JSON.stringify(zurueck, null, 1);
+        document.getElementById("tresorErgebnis").hidden = false;
+
+        const allesGut = gleich && !falschLesbar && richtigErkannt && falschErkannt && wiederLesbar;
+        status(allesGut ? "Verschlüsselung funktioniert ✓" : "Bei der Verschlüsselung stimmt etwas nicht, bitte Protokoll schicken.", allesGut);
+      } catch (fehler) {
+        protokolliere("Verschlüsselung FEHLER: " + (fehler && fehler.message));
+        status("Verschlüsselung hat nicht geklappt, bitte Protokoll schicken.");
+      }
+      knopf.disabled = false;
+      knopf.textContent = "Verschlüsselung testen";
+    });
 
     async function starte() {
       const basis = "https://www.gstatic.com/firebasejs/" + FIREBASE_VERSION + "/";
