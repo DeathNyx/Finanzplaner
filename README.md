@@ -16,6 +16,7 @@ Persönliche Finanzplanung mit Kassen. Läuft im Browser, auch am Handy, ganz oh
 - **Schulden und Raten** mit Restbetrag und voraussichtlichem Ende
 - **Backup** als Datei exportieren und wieder einlesen
 - **Beispieldaten** zum Ausprobieren (Mehr › Backup › Beispieldaten laden)
+- **Als App installierbar** (PWA): eigenes Symbol auf dem Startbildschirm, funktioniert auch ohne Internet (Mehr › App installieren)
 
 ## Dateien
 
@@ -37,5 +38,9 @@ Persönliche Finanzplanung mit Kassen. Läuft im Browser, auch am Handy, ganz oh
 | `js/schulden.js` | Schulden und Raten |
 | `js/kategorien.js` | Kategorien |
 | `js/backup.js` | Backup und Beispieldaten |
+| `js/installieren.js` | App installieren, Offline Betrieb starten |
 | `js/app.js` | Start der App und Navigation |
 | `beispieldaten.json` | Erfundene Beispieldaten, keine echten Finanzdaten |
+| `manifest.webmanifest` | Ausweis der App: Name, Symbol, Farben |
+| `sw.js` | Service Worker: speichert die App für den Offline Betrieb |
+| `icons/` | App Symbole (`icon.svg` ist die Vorlage) |

@@ -933,3 +933,17 @@ p .farbpunkt {
 .menue small.fehler {
   font-size: 0.8rem;
 }
+
+/* Überschrift in einem gelben Hinweiskasten */
+.warnung h2 {
+  color: inherit;
+}
+
+.warnung .schritte {
+  margin: 8px 0;
+}
+
+.warnung a {
+  color: inherit;
+  font-weight: 700;
+}

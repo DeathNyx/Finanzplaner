@@ -85,6 +85,11 @@ const bildschirme = {
     tab: "mehr",
     zeichne: zeichneKategorie
   },
+  installieren: {
+    titel: "App installieren",
+    tab: "mehr",
+    zeichne: zeichneInstallieren
+  },
   backup: {
     titel: "Backup",
     tab: "mehr",
@@ -198,3 +203,9 @@ window.addEventListener("hashchange", function () {
 
 // Beim ersten Öffnen der Seite einmal anzeigen
 zeigeBildschirm();
+
+// Offline Betrieb einschalten (Service Worker)
+starteServiceWorker();
+
+// Als installierte App: den Browser bitten, die Daten dauerhaft zu behalten
+if (laeuftAlsApp()) speicherDauerhaftMachen();
