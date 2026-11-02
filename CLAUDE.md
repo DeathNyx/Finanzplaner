@@ -36,10 +36,18 @@ Eine persönliche Finanzplanung, die im Browser läuft und auch am Handy gut bed
 
 ## Technik
 - Reines HTML, CSS und JavaScript, kein Framework, keine Installation nötig
-- Daten nur lokal im Browser speichern (localStorage), keine Cloud, kein Server
+- Daten liegen lokal im Browser (localStorage) und funktionieren auch offline
 - Beträge in Euro im deutschen Format (1.234,56 €), Datum als TT.MM.JJJJ
 - Mobil zuerst: große Schaltflächen, gut lesbar auf dem Handy
 - Wenige, übersichtliche Dateien, Kommentare im Code auf Deutsch
+
+## Synchronisation (gemeinsame Nutzung mit meiner Partnerin)
+- Abgleich zwischen den Handys über Firebase (Firestore), Speicherort EU (Frankfurt)
+- Anmeldung mit Google Konto, gemeinsamer Haushalt mit Einladungscode
+- Alle Finanzdaten werden auf dem Handy verschlüsselt, bevor sie in die Cloud gehen (Haushalts Passwort). In der Cloud liegt nichts Lesbares, der Schlüssel bleibt nur auf unseren Handys.
+- Kein eigener Server. Die App muss weiterhin ohne Internet funktionieren und gleicht ab, sobald wieder Netz da ist.
+- Die Firebase Projektdaten (apiKey usw.) dürfen ins Repository, sie sind kein Geheimnis. Geschützt wird über Sicherheitsregeln und Verschlüsselung.
+- Backup als Datei bleibt als zusätzliche Sicherung erhalten
 
 ## Arbeitsweise
 - Ich arbeite nur vom Smartphone aus (Claude App, Code Tab, GitHub im Handy Browser)
