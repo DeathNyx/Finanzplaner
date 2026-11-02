@@ -75,6 +75,21 @@ const bildschirme = {
     tab: "mehr",
     zeichne: zeichneSchuld
   },
+  kategorien: {
+    titel: "Kategorien",
+    tab: "mehr",
+    zeichne: zeichneKategorienListe
+  },
+  kategorie: {
+    titel: "Kategorie",
+    tab: "mehr",
+    zeichne: zeichneKategorie
+  },
+  backup: {
+    titel: "Backup",
+    tab: "mehr",
+    zeichne: zeichneBackup
+  },
   uebertrag: {
     titel: "Übertrag",
     // Neuer Übertrag gehört zu "Buchen", ein bestehender zu "Kassen"

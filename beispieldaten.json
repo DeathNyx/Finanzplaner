@@ -1,0 +1,684 @@
+{
+  "app": "finanzplaner",
+  "version": 1,
+  "exportiertAm": "2026-11-02T10:00:00.000Z",
+  "hinweis": "Erfundene Beispieldaten zum Ausprobieren",
+  "daten": {
+    "version": 1,
+    "personen": [
+      {
+        "id": "per_ich",
+        "name": "Ich",
+        "farbe": "#1f6feb"
+      },
+      {
+        "id": "per_partnerin",
+        "name": "Partnerin",
+        "farbe": "#bf3989"
+      }
+    ],
+    "kassen": [
+      {
+        "id": "kas_giro",
+        "name": "Girokonto",
+        "farbe": "#1f6feb",
+        "art": "persoenlich",
+        "personen": [
+          "per_ich"
+        ],
+        "startbetrag": 85000,
+        "startdatum": "2026-10-01",
+        "aufteilung": null,
+        "archiviert": false
+      },
+      {
+        "id": "kas_partnerin",
+        "name": "Konto Partnerin",
+        "farbe": "#bf3989",
+        "art": "persoenlich",
+        "personen": [
+          "per_partnerin"
+        ],
+        "startbetrag": 120000,
+        "startdatum": "2026-10-01",
+        "aufteilung": null,
+        "archiviert": false
+      },
+      {
+        "id": "kas_haushalt",
+        "name": "Haushalt",
+        "farbe": "#1a7f37",
+        "art": "gemeinsam",
+        "personen": [
+          "per_ich",
+          "per_partnerin"
+        ],
+        "startbetrag": 0,
+        "startdatum": "2026-10-01",
+        "aufteilung": {
+          "art": "prozent",
+          "prozente": {
+            "per_ich": 60,
+            "per_partnerin": 40
+          }
+        },
+        "archiviert": false
+      },
+      {
+        "id": "kas_urlaub",
+        "name": "Urlaub",
+        "farbe": "#d1650f",
+        "art": "gemeinsam",
+        "personen": [
+          "per_ich",
+          "per_partnerin"
+        ],
+        "startbetrag": 50000,
+        "startdatum": "2026-10-01",
+        "aufteilung": {
+          "art": "selbst"
+        },
+        "archiviert": false
+      }
+    ],
+    "buchungen": [
+      {
+        "id": "buc_mvz387g8_97qm",
+        "kasseId": "kas_haushalt",
+        "typ": "ausgabe",
+        "betrag": 8740,
+        "datum": "2026-10-04",
+        "kategorieId": "kat_mvz387g6_4ibc",
+        "notiz": "Wocheneinkauf",
+        "bezahltVon": null,
+        "anteile": {
+          "per_ich": 5244,
+          "per_partnerin": 3496
+        },
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_dd9c",
+        "kasseId": "kas_haushalt",
+        "typ": "ausgabe",
+        "betrag": 6215,
+        "datum": "2026-10-11",
+        "kategorieId": "kat_mvz387g6_4ibc",
+        "notiz": "Wocheneinkauf",
+        "bezahltVon": null,
+        "anteile": {
+          "per_ich": 3729,
+          "per_partnerin": 2486
+        },
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_tqyg",
+        "kasseId": "kas_haushalt",
+        "typ": "ausgabe",
+        "betrag": 4590,
+        "datum": "2026-10-18",
+        "kategorieId": "kat_mvz387g6_4ibc",
+        "notiz": "Markt",
+        "bezahltVon": "per_partnerin",
+        "anteile": {
+          "per_ich": 2754,
+          "per_partnerin": 1836
+        },
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_dyo2",
+        "kasseId": "kas_haushalt",
+        "typ": "ausgabe",
+        "betrag": 9120,
+        "datum": "2026-10-25",
+        "kategorieId": "kat_mvz387g6_4ibc",
+        "notiz": "Wocheneinkauf",
+        "bezahltVon": null,
+        "anteile": {
+          "per_ich": 5472,
+          "per_partnerin": 3648
+        },
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_eytd",
+        "kasseId": "kas_haushalt",
+        "typ": "ausgabe",
+        "betrag": 3480,
+        "datum": "2026-10-19",
+        "kategorieId": "kat_mvz387g6_oss6",
+        "notiz": "Kino",
+        "bezahltVon": "per_ich",
+        "anteile": {
+          "per_ich": 2088,
+          "per_partnerin": 1392
+        },
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_82sw",
+        "kasseId": "kas_giro",
+        "typ": "ausgabe",
+        "betrag": 5990,
+        "datum": "2026-10-09",
+        "kategorieId": "kat_mvz387g6_oss6",
+        "notiz": "Konzertkarte",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_bmwe",
+        "kasseId": "kas_giro",
+        "typ": "ausgabe",
+        "betrag": 4500,
+        "datum": "2026-10-14",
+        "kategorieId": "kat_mvz387g6_3clh",
+        "notiz": "Tanken",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_6p3w",
+        "kasseId": "kas_partnerin",
+        "typ": "ausgabe",
+        "betrag": 3999,
+        "datum": "2026-10-21",
+        "kategorieId": "kat_mvz387g6_05iu",
+        "notiz": "Apotheke",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_sc1u",
+        "kasseId": "kas_partnerin",
+        "typ": "einnahme",
+        "betrag": 15000,
+        "datum": "2026-10-30",
+        "kategorieId": "kat_mvz387g6_t835",
+        "notiz": "Nachhilfe",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_t8xj",
+        "kasseId": "kas_urlaub",
+        "typ": "ausgabe",
+        "betrag": 32000,
+        "datum": "2026-10-27",
+        "kategorieId": "kat_mvz387g6_oss6",
+        "notiz": "Ferienwohnung Anzahlung",
+        "bezahltVon": "per_ich",
+        "anteile": {
+          "per_ich": 16000,
+          "per_partnerin": 16000
+        },
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_2ja6",
+        "kasseId": "kas_urlaub",
+        "typ": "ausgabe",
+        "betrag": 8000,
+        "datum": "2026-10-29",
+        "kategorieId": "kat_mvz387g6_oss6",
+        "notiz": "Zugtickets",
+        "bezahltVon": "per_partnerin",
+        "anteile": {
+          "per_ich": 5000,
+          "per_partnerin": 3000
+        },
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387g8_e0df",
+        "kasseId": "kas_haushalt",
+        "typ": "ausgabe",
+        "betrag": 7360,
+        "datum": "2026-11-01",
+        "kategorieId": "kat_mvz387g6_4ibc",
+        "notiz": "Wocheneinkauf",
+        "bezahltVon": null,
+        "anteile": {
+          "per_ich": 4416,
+          "per_partnerin": 2944
+        },
+        "vorlageId": null,
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387ga_2fza",
+        "kasseId": "kas_giro",
+        "typ": "einnahme",
+        "betrag": 240000,
+        "datum": "2026-10-28",
+        "kategorieId": "kat_mvz387g6_2jxq",
+        "notiz": "Gehalt",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": "dau_mvz387g7_wb2w",
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387gb_8nlo",
+        "kasseId": "kas_partnerin",
+        "typ": "einnahme",
+        "betrag": 190000,
+        "datum": "2026-10-28",
+        "kategorieId": "kat_mvz387g6_2jxq",
+        "notiz": "Gehalt",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": "dau_mvz387g7_e1kj",
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387gc_jag5",
+        "kasseId": "kas_haushalt",
+        "typ": "ausgabe",
+        "betrag": 110000,
+        "datum": "2026-10-03",
+        "kategorieId": "kat_mvz387g6_072p",
+        "notiz": "Miete",
+        "bezahltVon": null,
+        "anteile": {
+          "per_ich": 66000,
+          "per_partnerin": 44000
+        },
+        "vorlageId": "dau_mvz387g7_4541",
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387gc_ewcs",
+        "kasseId": "kas_haushalt",
+        "typ": "ausgabe",
+        "betrag": 8500,
+        "datum": "2026-10-05",
+        "kategorieId": "kat_mvz387g6_o6bp",
+        "notiz": "Strom",
+        "bezahltVon": null,
+        "anteile": {
+          "per_ich": 5100,
+          "per_partnerin": 3400
+        },
+        "vorlageId": "dau_mvz387g7_49sr",
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387gc_ner3",
+        "kasseId": "kas_giro",
+        "typ": "ausgabe",
+        "betrag": 1999,
+        "datum": "2026-10-10",
+        "kategorieId": "kat_mvz387g6_r6dy",
+        "notiz": "Handyvertrag",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": "dau_mvz387g7_hu6k",
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387gc_nmfq",
+        "kasseId": "kas_giro",
+        "typ": "ausgabe",
+        "betrag": 1399,
+        "datum": "2026-10-15",
+        "kategorieId": "kat_mvz387g6_upiq",
+        "notiz": "Streamingdienst",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": "dau_mvz387g7_hclh",
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387gc_34o1",
+        "kasseId": "kas_partnerin",
+        "typ": "ausgabe",
+        "betrag": 650,
+        "datum": "2026-10-01",
+        "kategorieId": "kat_mvz387g6_u37v",
+        "notiz": "Haftpflicht",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": "dau_mvz387g7_xrxz",
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387gc_scb7",
+        "kasseId": "kas_partnerin",
+        "typ": "ausgabe",
+        "betrag": 650,
+        "datum": "2026-11-01",
+        "kategorieId": "kat_mvz387g6_u37v",
+        "notiz": "Haftpflicht",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": "dau_mvz387g7_xrxz",
+        "schuldId": null
+      },
+      {
+        "id": "buc_mvz387gc_2suk",
+        "kasseId": "kas_giro",
+        "typ": "ausgabe",
+        "betrag": 25000,
+        "datum": "2026-10-15",
+        "kategorieId": "kat_mvz387g6_3clh",
+        "notiz": "Rate Autokredit",
+        "bezahltVon": null,
+        "anteile": null,
+        "vorlageId": "dau_mvz387g7_na7k",
+        "schuldId": "sch_auto"
+      }
+    ],
+    "uebertraege": [
+      {
+        "id": "ueb_mvz387gb_ez7x",
+        "vonKasseId": "kas_giro",
+        "nachKasseId": "kas_haushalt",
+        "betrag": 90000,
+        "datum": "2026-10-01",
+        "personId": "per_ich",
+        "notiz": "Beitrag Haushalt",
+        "vorlageId": "dau_mvz387g7_ivlf"
+      },
+      {
+        "id": "ueb_mvz387gb_7mhp",
+        "vonKasseId": "kas_giro",
+        "nachKasseId": "kas_haushalt",
+        "betrag": 90000,
+        "datum": "2026-11-01",
+        "personId": "per_ich",
+        "notiz": "Beitrag Haushalt",
+        "vorlageId": "dau_mvz387g7_ivlf"
+      },
+      {
+        "id": "ueb_mvz387gb_0z6t",
+        "vonKasseId": "kas_partnerin",
+        "nachKasseId": "kas_haushalt",
+        "betrag": 60000,
+        "datum": "2026-10-01",
+        "personId": "per_partnerin",
+        "notiz": "Beitrag Haushalt",
+        "vorlageId": "dau_mvz387g7_1r0g"
+      },
+      {
+        "id": "ueb_mvz387gc_24yc",
+        "vonKasseId": "kas_partnerin",
+        "nachKasseId": "kas_haushalt",
+        "betrag": 60000,
+        "datum": "2026-11-01",
+        "personId": "per_partnerin",
+        "notiz": "Beitrag Haushalt",
+        "vorlageId": "dau_mvz387g7_1r0g"
+      }
+    ],
+    "dauerauftraege": [
+      {
+        "id": "dau_mvz387g7_wb2w",
+        "kasseId": "kas_giro",
+        "kategorieId": "kat_mvz387g6_2jxq",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-10",
+        "schuldId": null,
+        "art": "einnahme",
+        "name": "Gehalt",
+        "betrag": 240000,
+        "tag": 28
+      },
+      {
+        "id": "dau_mvz387g7_e1kj",
+        "kasseId": "kas_partnerin",
+        "kategorieId": "kat_mvz387g6_2jxq",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-10",
+        "schuldId": null,
+        "art": "einnahme",
+        "name": "Gehalt",
+        "betrag": 190000,
+        "tag": 28
+      },
+      {
+        "id": "dau_mvz387g7_ivlf",
+        "kasseId": null,
+        "kategorieId": null,
+        "bezahltVon": null,
+        "vonKasseId": "kas_giro",
+        "nachKasseId": "kas_haushalt",
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-11",
+        "schuldId": null,
+        "art": "uebertrag",
+        "name": "Beitrag Haushalt",
+        "betrag": 90000,
+        "tag": 1
+      },
+      {
+        "id": "dau_mvz387g7_1r0g",
+        "kasseId": null,
+        "kategorieId": null,
+        "bezahltVon": null,
+        "vonKasseId": "kas_partnerin",
+        "nachKasseId": "kas_haushalt",
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-11",
+        "schuldId": null,
+        "art": "uebertrag",
+        "name": "Beitrag Haushalt",
+        "betrag": 60000,
+        "tag": 1
+      },
+      {
+        "id": "dau_mvz387g7_4541",
+        "kasseId": "kas_haushalt",
+        "kategorieId": "kat_mvz387g6_072p",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-10",
+        "schuldId": null,
+        "art": "ausgabe",
+        "name": "Miete",
+        "betrag": 110000,
+        "tag": 3
+      },
+      {
+        "id": "dau_mvz387g7_49sr",
+        "kasseId": "kas_haushalt",
+        "kategorieId": "kat_mvz387g6_o6bp",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-10",
+        "schuldId": null,
+        "art": "ausgabe",
+        "name": "Strom",
+        "betrag": 8500,
+        "tag": 5
+      },
+      {
+        "id": "dau_mvz387g7_hu6k",
+        "kasseId": "kas_giro",
+        "kategorieId": "kat_mvz387g6_r6dy",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-10",
+        "schuldId": null,
+        "art": "ausgabe",
+        "name": "Handyvertrag",
+        "betrag": 1999,
+        "tag": 10
+      },
+      {
+        "id": "dau_mvz387g7_hclh",
+        "kasseId": "kas_giro",
+        "kategorieId": "kat_mvz387g6_upiq",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-10",
+        "schuldId": null,
+        "art": "ausgabe",
+        "name": "Streamingdienst",
+        "betrag": 1399,
+        "tag": 15
+      },
+      {
+        "id": "dau_mvz387g7_xrxz",
+        "kasseId": "kas_partnerin",
+        "kategorieId": "kat_mvz387g6_u37v",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-11",
+        "schuldId": null,
+        "art": "ausgabe",
+        "name": "Haftpflicht",
+        "betrag": 650,
+        "tag": 1
+      },
+      {
+        "id": "dau_mvz387g7_na7k",
+        "kasseId": "kas_giro",
+        "kategorieId": "kat_mvz387g6_3clh",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "startMonat": "2026-10",
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": "2026-10",
+        "schuldId": "sch_auto",
+        "art": "ausgabe",
+        "name": "Rate Autokredit",
+        "betrag": 25000,
+        "tag": 15
+      }
+    ],
+    "schulden": [
+      {
+        "id": "sch_auto",
+        "name": "Autokredit",
+        "glaeubiger": "Beispielbank",
+        "rest": 600000,
+        "stichtag": "2026-10-01",
+        "rate": 25000,
+        "notiz": "Erfundenes Beispiel"
+      }
+    ],
+    "ausgleiche": [],
+    "kategorien": [
+      {
+        "id": "kat_mvz387g6_2jxq",
+        "name": "Gehalt",
+        "typ": "einnahme"
+      },
+      {
+        "id": "kat_mvz387g6_t835",
+        "name": "Nebenjob",
+        "typ": "einnahme"
+      },
+      {
+        "id": "kat_mvz387g6_x0fk",
+        "name": "Sonstiges",
+        "typ": "einnahme"
+      },
+      {
+        "id": "kat_mvz387g6_072p",
+        "name": "Miete",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_o6bp",
+        "name": "Strom",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_r6dy",
+        "name": "Handy",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_u37v",
+        "name": "Versicherungen",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_upiq",
+        "name": "Abos",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_4ibc",
+        "name": "Lebensmittel",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_3clh",
+        "name": "Mobilität",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_oss6",
+        "name": "Freizeit",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_05iu",
+        "name": "Gesundheit",
+        "typ": "ausgabe"
+      },
+      {
+        "id": "kat_mvz387g6_sm2u",
+        "name": "Sonstiges",
+        "typ": "ausgabe"
+      }
+    ],
+    "einstellungen": {}
+  }
+}

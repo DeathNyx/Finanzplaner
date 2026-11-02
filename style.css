@@ -908,3 +908,28 @@ p .farbpunkt {
 .schuld-zeile .balken {
   margin-top: 6px;
 }
+
+/* ---------- Backup ---------- */
+/* Datei auswählen: Das eigentliche Feld ist unsichtbar, man tippt auf den Knopf */
+.datei-knopf {
+  position: relative;
+  overflow: hidden;
+}
+
+.datei-knopf input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Erinnerung auf der Übersicht ist antippbar */
+.erinnerung {
+  display: block;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.menue small.fehler {
+  font-size: 0.8rem;
+}

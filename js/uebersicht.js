@@ -21,6 +21,15 @@ function zeichneUebersicht(bereich) {
   const gesamt = gesamtstand();
   let html = "";
 
+  // Erinnerung an ein Backup
+  if (backupFaellig()) {
+    const tage = tageSeitBackup();
+    html +=
+      '<a class="karte warnung erinnerung" href="#backup">💾 ' +
+      (tage === null ? "Du hast noch kein Backup gemacht." : "Dein letztes Backup ist " + tage + " Tage her.") +
+      " Jetzt sichern ›</a>";
+  }
+
   // Gesamtvermögen
   html +=
     '<div class="karte gesamt-gross">' +

@@ -57,10 +57,10 @@ function zeichneMehr(bereich) {
   bereich.innerHTML =
     '<nav class="menue karte">' +
     '  <a href="#personen">👤 Personen</a>' +
-    '  <span class="bald">🏷️ Kategorien <small>kommt bald</small></span>' +
+    '  <a href="#kategorien">🏷️ Kategorien</a>' +
     '  <a href="#dauerauftraege">🔁 Daueraufträge</a>' +
     '  <a href="#schulden">📉 Schulden und Raten</a>' +
-    '  <span class="bald">💾 Backup <small>kommt bald</small></span>' +
+    '  <a href="#backup">💾 Backup' + (backupFaellig() ? ' <small class="fehler">fällig</small>' : "") + "</a>" +
     "</nav>" +
     '<p class="leise klein">Deine Daten liegen nur auf diesem Gerät in diesem Browser.</p>';
 }
