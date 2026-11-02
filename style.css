@@ -523,3 +523,157 @@ body {
   border: 1px solid var(--rahmen);
   border-radius: 10px;
 }
+
+/* Positive Beträge in Grün */
+.betrag.positiv {
+  color: #1a7f37;
+}
+
+@media (prefers-color-scheme: dark) {
+  .betrag.positiv { color: #3fb950; }
+  .betrag.negativ, .fehler { color: #ff6b6b; }
+}
+
+/* Großes Betragsfeld beim Buchen */
+.feld input.gross-eingabe {
+  font-size: 28px;
+  font-weight: 700;
+  min-height: 64px;
+  text-align: right;
+}
+
+/* Knopf, der wie ein Link aussieht (z. B. "Anpassen") */
+.link-knopf {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--akzent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Zwei Knöpfe nebeneinander */
+.knopf-reihe {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.knopf-reihe .knopf {
+  margin-top: 0;
+}
+
+/* ---------- Seite einer Kasse ---------- */
+.kassen-kopf {
+  border-top: 6px solid var(--kassenfarbe);
+}
+
+.kassen-kopf p {
+  margin-bottom: 4px;
+}
+
+/* Monat wählen: ‹ November 2026 › */
+.monatswahl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+.monatswahl .link-knopf {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+/* Summen eines Monats */
+.summen div {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.summen .summe-gesamt {
+  border-top: 1px solid var(--rahmen);
+  margin-top: 6px;
+  padding-top: 10px;
+  font-weight: 700;
+}
+
+/* Zeile mit Hauptzeile und kleiner Zeile darunter */
+.zweizeilig {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.zweizeilig small {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Aufteilung einer Buchung ---------- */
+.aufteilung {
+  background: var(--hintergrund);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+  padding: 8px 12px 12px;
+  margin-bottom: 16px;
+}
+
+.aufteilung-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.anteil-zeile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.anteil-feld {
+  width: 120px;
+  min-height: 48px;
+  padding: 8px 10px;
+  font-size: 18px;
+  font-family: inherit;
+  text-align: right;
+  color: var(--text);
+  background: var(--flaeche);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+  margin: 4px 0;
+}
+
+#anteilSumme {
+  margin: 8px 0 0;
+}
+
+/* ---------- Kurze Meldung unten ---------- */
+.meldung {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--navi-hoehe) + 16px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 20px);
+  max-width: calc(100% - 32px);
+  padding: 12px 20px;
+  color: #fff;
+  background: #1c2330;
+  border-radius: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.meldung.sichtbar {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

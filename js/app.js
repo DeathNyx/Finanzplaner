@@ -7,7 +7,7 @@
 // Dadurch funktioniert auch der Zurück Knopf am Handy.
 //
 // Manche Adressen haben einen Zusatz nach einem Schrägstrich,
-// z. B. "#person/neu" oder "#person/per_abc123".
+// z. B. "#person/neu" oder "#kasse/kas_abc123/2026-11".
 // Der Zusatz sagt dem Bildschirm, was genau er zeigen soll.
 // ============================================
 
@@ -35,14 +35,22 @@ const bildschirme = {
   kasse: {
     titel: "Kasse",
     tab: "kassen",
-    zeichne: zeichneKasse
+    zeichne: zeichneKasseSeite
+  },
+  kasseform: {
+    titel: "Kasse",
+    tab: "kassen",
+    zeichne: zeichneKassenFormular
   },
   buchen: {
     titel: "Buchen",
     tab: "buchen",
-    zeichne: function (bereich) {
-      bereich.innerHTML = platzhalter("Hier erfasst du bald Ausgaben, Einnahmen und Überträge.");
-    }
+    zeichne: zeichneBuchen
+  },
+  buchung: {
+    titel: "Buchung",
+    tab: "kassen",
+    zeichne: zeichneBuchung
   },
   monat: {
     titel: "Monat",
@@ -73,10 +81,12 @@ const startBildschirm = "uebersicht";
 
 // Zeigt den Bildschirm an, der gerade in der Adresse steht
 function zeigeBildschirm() {
-  // "#person/neu" wird zu name = "person" und zusatz = "neu"
+  // "#kasse/kas_abc/2026-11" wird zu name = "kasse",
+  // zusatz = "kas_abc" und zusatz2 = "2026-11"
   const teile = location.hash.replace("#", "").split("/");
   let name = teile[0];
   const zusatz = teile[1];
+  const zusatz2 = teile[2];
 
   // Unbekannte oder leere Adresse: zur Übersicht
   if (!bildschirme[name]) {
@@ -91,7 +101,7 @@ function zeigeBildschirm() {
 
   // Inhalt zeichnen
   const bereich = document.getElementById("inhalt");
-  bildschirm.zeichne(bereich, zusatz);
+  bildschirm.zeichne(bereich, zusatz, zusatz2);
 
   // Titel auch im Browser Tab anzeigen
   document.title = titel.textContent + " · Finanzplaner";

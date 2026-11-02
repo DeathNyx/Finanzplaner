@@ -127,6 +127,16 @@ function personWirdVerwendet(id) {
   return inKasse || inBuchung || inUebertrag;
 }
 
+// Kategorie anhand ihrer ID finden
+function findeKategorie(id) {
+  return daten.kategorien.find(function (k) { return k.id === id; });
+}
+
+// Buchung anhand ihrer ID finden
+function findeBuchung(id) {
+  return daten.buchungen.find(function (b) { return b.id === id; });
+}
+
 // Kasse anhand ihrer ID finden
 function findeKasse(id) {
   return daten.kassen.find(function (k) { return k.id === id; });

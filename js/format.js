@@ -106,3 +106,10 @@ function schuetzeText(text) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
+// Monat verschieben: ("2026-11", -1) ergibt "2026-10", ("2026-12", 1) ergibt "2027-01"
+function verschiebeMonat(jahrMonat, schritte) {
+  const [jahr, monat] = jahrMonat.split("-").map(Number);
+  const datum = new Date(jahr, monat - 1 + schritte, 1);
+  return isoDatum(datum).slice(0, 7);
+}

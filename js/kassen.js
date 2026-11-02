@@ -95,7 +95,7 @@ function zeichneKassen(bereich) {
     html += '<div class="karte liste">' + aktive.map(kassenZeile).join("") + "</div>";
   }
 
-  html += '<a class="knopf" href="#kasse/neu">+ Neue Kasse</a>';
+  html += '<a class="knopf" href="#kasseform/neu">+ Neue Kasse</a>';
 
   // Archivierte Kassen zum Aufklappen
   if (archivierte.length > 0) {
@@ -111,10 +111,107 @@ function zeichneKassen(bereich) {
 
 
 // ============================================
-// Bildschirm "Kasse": anlegen oder bearbeiten
+// Bildschirm "Kasse": Seite einer Kasse mit Stand und Buchungen.
+// "monat" ist z. B. "2026-11". Fehlt er, wird der aktuelle Monat gezeigt.
+// ============================================
+function zeichneKasseSeite(bereich, id, monat) {
+  const kasse = findeKasse(id);
+  if (!kasse) {
+    location.replace("#kassen");
+    return;
+  }
+
+  document.getElementById("titel").textContent = kasse.name;
+  if (!/^\d{4}-\d{2}$/.test(monat || "")) monat = heute().slice(0, 7);
+
+  const stand = kontostand(kasse);
+  const summen = monatsSummen(kasse.id, monat);
+  const saldo = summen.einnahmen - summen.ausgaben;
+
+  // Buchungen dieses Monats, die neuesten zuerst
+  const buchungen = daten.buchungen
+    .filter(function (b) { return b.kasseId === kasse.id && b.datum.startsWith(monat); })
+    .sort(function (a, b) { return b.datum.localeCompare(a.datum); });
+
+  let html = "";
+
+  if (kasse.archiviert) {
+    html += '<div class="karte warnung">Diese Kasse ist archiviert. Du kannst sie unter Bearbeiten wiederherstellen.</div>';
+  }
+
+  // Kopf mit Stand
+  html +=
+    '<div class="karte kassen-kopf" style="--kassenfarbe:' + kasse.farbe + '">' +
+    '  <p class="leise">' + schuetzeText(kassenBeschreibung(kasse)) + "</p>" +
+    '  <p class="leise klein">Aktueller Stand</p>' +
+    '  <p class="betrag gross' + (stand < 0 ? " negativ" : "") + '">' + formatEuro(stand) + "</p>" +
+    '  <p class="leise klein">Startbetrag ' + formatEuro(kasse.startbetrag) + " am " + formatDatum(kasse.startdatum) + "</p>" +
+    "</div>" +
+    '<div class="knopf-reihe">' +
+    '  <a class="knopf" href="#buchen/' + kasse.id + '">+ Buchung</a>' +
+    '  <a class="knopf zweit" href="#kasseform/' + kasse.id + '">Bearbeiten</a>' +
+    "</div>";
+
+  // Monat wählen
+  html +=
+    '<div class="monatswahl">' +
+    '  <button type="button" class="link-knopf" data-monat="' + verschiebeMonat(monat, -1) + '" aria-label="Voriger Monat">‹</button>' +
+    "  <strong>" + formatMonat(monat) + "</strong>" +
+    '  <button type="button" class="link-knopf" data-monat="' + verschiebeMonat(monat, 1) + '" aria-label="Nächster Monat">›</button>' +
+    "</div>";
+
+  // Summen des Monats
+  html +=
+    '<div class="karte summen">' +
+    '  <div><span class="leise">Einnahmen</span>' + betragMitVorzeichen(summen.einnahmen, "einnahme") + "</div>" +
+    '  <div><span class="leise">Ausgaben</span>' + betragMitVorzeichen(summen.ausgaben, "ausgabe") + "</div>" +
+    '  <div class="summe-gesamt"><span>Ergebnis</span><span class="betrag' + (saldo < 0 ? " negativ" : "") + '">' + formatEuro(saldo) + "</span></div>" +
+    "</div>";
+
+  // Liste der Buchungen
+  if (buchungen.length === 0) {
+    html += platzhalter("Keine Buchungen in diesem Monat.");
+  } else {
+    html += '<div class="karte liste">' + buchungen.map(buchungsZeile).join("") + "</div>";
+  }
+
+  bereich.innerHTML = html;
+
+  // Monat wechseln, ohne dass jeder Wechsel im Verlauf landet
+  bereich.querySelectorAll("[data-monat]").forEach(function (knopf) {
+    knopf.addEventListener("click", function () {
+      location.replace("#kasse/" + kasse.id + "/" + knopf.dataset.monat);
+    });
+  });
+}
+
+// Eine Zeile in der Buchungsliste einer Kasse
+function buchungsZeile(b) {
+  const kategorie = findeKategorie(b.kategorieId);
+  const person = b.bezahltVon ? findePerson(b.bezahltVon) : null;
+
+  // Kleine Zeile unter dem Namen: Datum, Notiz, wer bezahlt hat
+  const details = [formatDatum(b.datum)];
+  if (b.notiz) details.push(b.notiz);
+  if (person) details.push((b.typ === "ausgabe" ? "bezahlt von " : "von ") + person.name);
+
+  return (
+    '<a class="zeile" href="#buchung/' + b.id + '">' +
+    '  <span class="zeile-text zweizeilig">' +
+    "    <span>" + schuetzeText(kategorie ? kategorie.name : "Ohne Kategorie") + "</span>" +
+    '    <small class="leise">' + schuetzeText(details.join(" · ")) + "</small>" +
+    "  </span>" +
+    betragMitVorzeichen(b.betrag, b.typ) +
+    "</a>"
+  );
+}
+
+
+// ============================================
+// Bildschirm "Kasse bearbeiten": anlegen oder ändern
 // "id" ist entweder "neu" oder die ID einer Kasse
 // ============================================
-function zeichneKasse(bereich, id) {
+function zeichneKassenFormular(bereich, id) {
   const istNeu = id === "neu";
   const kasse = istNeu ? null : findeKasse(id);
 

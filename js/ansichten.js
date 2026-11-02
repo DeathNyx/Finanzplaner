@@ -93,3 +93,29 @@ function zeigeFehler(element, text) {
   element.textContent = text;
   element.hidden = false;
 }
+
+// Kurze Meldung unten einblenden, z. B. "Buchung gespeichert".
+// Sie verschwindet nach ein paar Sekunden von selbst.
+function zeigeMeldung(text) {
+  let meldung = document.getElementById("meldung");
+  if (!meldung) {
+    meldung = document.createElement("div");
+    meldung.id = "meldung";
+    meldung.className = "meldung";
+    meldung.setAttribute("role", "status");
+    document.body.appendChild(meldung);
+  }
+  meldung.textContent = text;
+  meldung.classList.add("sichtbar");
+  clearTimeout(zeigeMeldung.zeitgeber);
+  zeigeMeldung.zeitgeber = setTimeout(function () {
+    meldung.classList.remove("sichtbar");
+  }, 2500);
+}
+
+// Betrag mit Vorzeichen und Farbe, z. B. "+ 50,00 €" grün oder "− 12,00 €" rot
+function betragMitVorzeichen(cent, typ) {
+  const plus = typ === "einnahme";
+  return '<span class="betrag ' + (plus ? "positiv" : "negativ") + '">' +
+    (plus ? "+ " : "− ") + formatEuro(cent) + "</span>";
+}
