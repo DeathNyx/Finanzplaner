@@ -47,6 +47,9 @@ Persönliche Finanzplanung mit Kassen. Läuft im Browser, auch am Handy, ganz oh
 | `js/hinweise.js` | Anstehende Zahlungen, Warnungen und Einstellungen |
 | `js/firebase-konfig.js` | Öffentliche Projektdaten von Firebase (für den Abgleich) |
 | `js/verschluesselung.js` | Verschlüsselung mit dem Haushalts Passwort |
+| `js/cloud.js` | Verbindung zu Firebase: Anmeldung, Haushalt, Einladung |
+| `js/abgleich.js` | Bildschirm „Abgleich“ (Mehr › Abgleich) |
+| `firestore.rules` | Sicherheitsregeln für Firebase (werden in der Firebase Konsole eingetragen) |
 | `anmeldetest.html` | Vorübergehende Testseite für Anmeldung und Verschlüsselung |
 | `js/app.js` | Start der App und Navigation |
 | `beispieldaten.json` | Erfundene Beispieldaten, keine echten Finanzdaten |

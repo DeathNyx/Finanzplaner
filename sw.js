@@ -15,7 +15,7 @@
 // DATEIEN eingetragen und die VERSION um eins erhöht werden.
 // ============================================
 
-const VERSION = 4;
+const VERSION = 5;
 const CACHE_NAME = "finanzplaner-v" + VERSION;
 
 // Nach so vielen Millisekunden ohne Antwort wird der Cache genommen
@@ -51,7 +51,11 @@ const DATEIEN = [
   "./js/backup.js",
   "./js/installieren.js",
   "./js/hinweise.js",
-  "./js/app.js"
+  "./js/app.js",
+  "./js/firebase-konfig.js",
+  "./js/verschluesselung.js",
+  "./js/cloud.js",
+  "./js/abgleich.js"
 ];
 
 // Installation: alle Dateien in den Cache legen

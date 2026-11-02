@@ -1,0 +1,98 @@
+rules_version = '2';
+
+// ============================================
+// Sicherheitsregeln für den Finanzplaner (Firestore)
+//
+// Diese Regeln werden in der Firebase Konsole eingetragen:
+// Firestore Database › Regeln › Text ersetzen › Veröffentlichen.
+//
+// Grundsätze:
+// - Nur angemeldete Nutzer kommen überhaupt an etwas heran.
+// - Einen Haushalt sehen nur seine Mitglieder.
+// - Beitreten geht nur mit gültigem Einladungscode, und jeder kann
+//   nur sich selbst hinzufügen (oder sich selbst austragen).
+// - Alle Finanzdaten sind zusätzlich mit dem Haushalts Passwort
+//   verschlüsselt. Ohne Passwort sieht man nur Zeichensalat.
+// ============================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function angemeldet() {
+      return request.auth != null;
+    }
+
+    function haushaltPfad(hid) {
+      return /databases/$(database)/documents/haushalte/$(hid);
+    }
+
+    function istMitglied(hid) {
+      return angemeldet()
+        && exists(haushaltPfad(hid))
+        && request.auth.uid in get(haushaltPfad(hid)).data.mitglieder;
+    }
+
+    // Gibt es eine gültige (nicht abgelaufene) Einladung mit diesem Code für diesen Haushalt?
+    function einladungGueltig(code, hid) {
+      let pfad = /databases/$(database)/documents/einladungen/$(code);
+      return exists(pfad)
+        && get(pfad).data.haushaltId == hid
+        && get(pfad).data.gueltigBis > request.time;
+    }
+
+    // ---------- Haushalte ----------
+    match /haushalte/{hid} {
+
+      // Lesen: nur Mitglieder
+      allow read: if angemeldet() && request.auth.uid in resource.data.mitglieder;
+
+      // Anlegen: man ist selbst das einzige Mitglied
+      allow create: if angemeldet()
+        && request.resource.data.keys().hasOnly(['mitglieder', 'erstelltVon', 'salz', 'pruefwert', 'namen', 'erstellt'])
+        && request.resource.data.mitglieder == [request.auth.uid]
+        && request.resource.data.erstelltVon == request.auth.uid
+        && request.resource.data.salz is string
+        && request.resource.data.pruefwert is map
+        && request.resource.data.namen is map
+        && request.resource.data.namen.keys().hasOnly([request.auth.uid]);
+
+      // Beitreten: mit gültiger Einladung nur sich selbst hinzufügen (höchstens 6 Mitglieder)
+      allow update: if angemeldet()
+        && !(request.auth.uid in resource.data.mitglieder)
+        && resource.data.mitglieder.size() < 6
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mitglieder', 'namen', 'beitrittCode'])
+        && request.resource.data.mitglieder == resource.data.mitglieder.concat([request.auth.uid])
+        && request.resource.data.namen.diff(resource.data.namen).affectedKeys().hasOnly([request.auth.uid])
+        && einladungGueltig(request.resource.data.beitrittCode, hid);
+
+      // Verlassen: nur sich selbst austragen
+      allow update: if angemeldet()
+        && request.auth.uid in resource.data.mitglieder
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mitglieder', 'namen'])
+        && request.resource.data.mitglieder.toSet() == resource.data.mitglieder.toSet().difference([request.auth.uid].toSet())
+        && request.resource.data.mitglieder.size() == resource.data.mitglieder.size() - 1
+        && !(request.auth.uid in request.resource.data.namen);
+
+      // Die verschlüsselten Einträge (Buchungen, Kassen ...): nur Mitglieder
+      match /eintraege/{eid} {
+        allow read, write: if istMitglied(hid);
+      }
+    }
+
+    // ---------- Einladungen ----------
+    // Die ID ist der Einladungscode. Abrufen kann sie nur, wer den Code kennt
+    // (einzeln lesen ja, auflisten nein).
+    match /einladungen/{code} {
+      allow get: if angemeldet();
+
+      allow create: if angemeldet()
+        && request.resource.data.keys().hasOnly(['haushaltId', 'erstelltVon', 'gueltigBis', 'salz', 'pruefwert'])
+        && request.resource.data.erstelltVon == request.auth.uid
+        && istMitglied(request.resource.data.haushaltId)
+        && request.resource.data.gueltigBis is timestamp
+        && request.resource.data.gueltigBis <= request.time + duration.value(8, 'd');
+
+      allow delete: if angemeldet() && resource.data.erstelltVon == request.auth.uid;
+    }
+  }
+}
