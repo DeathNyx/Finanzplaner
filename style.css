@@ -1301,3 +1301,25 @@ p .farbpunkt {
   background: var(--serie-2);
   border-radius: 0 4px 4px 0;
 }
+
+/* ---------- Abgleich ---------- */
+.abgleich-nutzer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Der Einladungscode groß und gut lesbar */
+.einladungscode {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  margin: 8px 0 4px;
+}
+
+form .karte.warnung {
+  margin: 8px 0 12px;
+}
