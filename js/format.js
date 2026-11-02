@@ -114,3 +114,30 @@ function verschiebeMonat(jahrMonat, schritte) {
   const datum = new Date(jahr, monat - 1 + schritte, 1);
   return isoDatum(datum).slice(0, 7);
 }
+
+// Tage zu einem Datum zählen: ("2026-11-30", 3) ergibt "2026-12-03"
+function plusTage(iso, tage) {
+  const [jahr, monat, tag] = iso.split("-").map(Number);
+  return isoDatum(new Date(jahr, monat - 1, tag + tage));
+}
+
+// Wie viele Tage liegt ein Datum nach heute? (0 = heute, 1 = morgen)
+function tageBis(iso) {
+  return Math.round((new Date(iso) - new Date(heute())) / 86400000);
+}
+
+// Kurzer Text für einen Tag: "Heute", "Morgen", "Übermorgen", "In 5 Tagen"
+function tagText(iso) {
+  const tage = tageBis(iso);
+  if (tage === 0) return "Heute";
+  if (tage === 1) return "Morgen";
+  if (tage === 2) return "Übermorgen";
+  return "In " + tage + " Tagen";
+}
+
+// Wochentag und Datum kurz: "Fr 07.11."
+function kurzDatum(iso) {
+  const [jahr, monat, tag] = iso.split("-").map(Number);
+  const wochentag = new Date(jahr, monat - 1, tag).toLocaleDateString("de-DE", { weekday: "short" }).replace(".", "");
+  return wochentag + " " + formatDatum(iso).slice(0, 6);
+}

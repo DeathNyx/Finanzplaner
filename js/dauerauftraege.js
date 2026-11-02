@@ -148,6 +148,29 @@ function fuehreDauerauftraegeAus() {
   return anzahl;
 }
 
+// Alle noch nicht gebuchten Termine eines Auftrags bis zu einem Datum (einschließlich).
+// Gibt eine Liste wie [{ datum: "2026-11-15", betrag: 25000 }] zurück.
+// Bei Raten wird wie beim echten Buchen höchstens der Rest der Schuld genommen.
+function kommendeTermine(d, bis) {
+  const liste = [];
+  if (d.pausiert || istBeendet(d)) return liste;
+
+  const schuld = d.schuldId ? findeSchuld(d.schuldId) : null;
+  let rest = schuld ? restbetrag(schuld) : Infinity;
+  let monat = naechsterMonat(d);
+
+  while (!d.endeMonat || monat <= d.endeMonat) {
+    const datum = faelligAm(d, monat);
+    if (datum > bis) break;
+    const betrag = Math.min(d.betrag, rest);
+    if (betrag <= 0) break;
+    liste.push({ datum: datum, betrag: betrag });
+    rest -= betrag;
+    monat = verschiebeMonat(monat, 1);
+  }
+  return liste;
+}
+
 // Daueraufträge, die in einem Monat noch kommen werden (noch nicht gebucht).
 // Überträge zählen nicht, weil sie das Gesamtergebnis nicht ändern.
 function erwarteteDauerauftraege(monat) {

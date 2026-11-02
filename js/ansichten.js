@@ -61,6 +61,7 @@ function zeichneMehr(bereich) {
     '  <a href="#dauerauftraege">🔁 Daueraufträge</a>' +
     '  <a href="#schulden">📉 Schulden und Raten</a>' +
     (laeuftAlsApp() ? "" : '  <a href="#installieren">📲 App installieren</a>') +
+    '  <a href="#einstellungen">⚙️ Einstellungen</a>' +
     '  <a href="#backup">💾 Backup' + (backupFaellig() ? ' <small class="fehler">fällig</small>' : "") + "</a>" +
     "</nav>" +
     '<p class="leise klein">Deine Daten liegen nur auf diesem Gerät in diesem Browser.</p>';

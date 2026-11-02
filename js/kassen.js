@@ -162,6 +162,11 @@ function zeichneKasseSeite(bereich, id, monat) {
     '  <a class="knopf zweit" href="#kasseform/' + kasse.id + '">Bearbeiten</a>' +
     "</div>";
 
+  // Anstehende Zahlungen dieser Kasse
+  if (!kasse.archiviert) {
+    html += demnaechstHtml(kasse);
+  }
+
   // Bei gemeinsamen Kassen: wer schuldet wem?
   if (kasse.art === "gemeinsam") {
     html += ausgleichKarte(kasse);

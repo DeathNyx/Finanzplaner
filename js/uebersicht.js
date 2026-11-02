@@ -37,6 +37,9 @@ function zeichneUebersicht(bereich) {
     '  <span class="betrag gross' + (gesamt < 0 ? " negativ" : "") + '">' + formatEuro(gesamt) + "</span>" +
     "</div>";
 
+  // Anstehende Zahlungen und Warnungen
+  html += demnaechstHtml();
+
   // Kassen als Kacheln
   html += '<div class="kacheln">';
   aktive.forEach(function (k) {

@@ -947,3 +947,31 @@ p .farbpunkt {
   color: inherit;
   font-weight: 700;
 }
+
+/* ---------- Anstehende Zahlungen ---------- */
+/* Linke Spalte mit "Morgen" und "Fr 07.11." */
+.termin-tag {
+  display: flex;
+  flex-direction: column;
+  width: 92px;
+  flex-shrink: 0;
+  line-height: 1.25;
+}
+
+.termin-tag strong {
+  font-size: 0.9rem;
+}
+
+.termin-tag small {
+  font-size: 0.8rem;
+  color: var(--text-leise);
+}
+
+/* Heute schon gebuchte Einträge etwas blasser */
+.zeile.gebucht {
+  opacity: 0.6;
+}
+
+.abschnitt small {
+  font-weight: 400;
+}

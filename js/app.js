@@ -85,6 +85,11 @@ const bildschirme = {
     tab: "mehr",
     zeichne: zeichneKategorie
   },
+  einstellungen: {
+    titel: "Einstellungen",
+    tab: "mehr",
+    zeichne: zeichneEinstellungen
+  },
   installieren: {
     titel: "App installieren",
     tab: "mehr",
