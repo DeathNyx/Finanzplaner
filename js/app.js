@@ -52,6 +52,12 @@ const bildschirme = {
     tab: "kassen",
     zeichne: zeichneBuchung
   },
+  uebertrag: {
+    titel: "Übertrag",
+    // Neuer Übertrag gehört zu "Buchen", ein bestehender zu "Kassen"
+    tab: function (zusatz) { return zusatz === "neu" ? "buchen" : "kassen"; },
+    zeichne: zeichneUebertrag
+  },
   monat: {
     titel: "Monat",
     tab: "monat",
@@ -114,7 +120,8 @@ function zeigeBildschirm() {
 
   // Den passenden Knopf unten farbig markieren
   document.querySelectorAll(".navi a").forEach(function (knopf) {
-    knopf.classList.toggle("aktiv", knopf.dataset.ziel === bildschirm.tab);
+    const tab = typeof bildschirm.tab === "function" ? bildschirm.tab(zusatz) : bildschirm.tab;
+    knopf.classList.toggle("aktiv", knopf.dataset.ziel === tab);
   });
 
   // Nach oben scrollen, wenn man den Bildschirm wechselt

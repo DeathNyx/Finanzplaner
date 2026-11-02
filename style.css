@@ -677,3 +677,9 @@ body {
   opacity: 1;
   transform: translate(-50%, 0);
 }
+
+/* Knopf "Tauschen" zwischen Von und An */
+.tauschen {
+  display: block;
+  margin: -6px 0 6px auto;
+}

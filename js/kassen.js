@@ -126,12 +126,22 @@ function zeichneKasseSeite(bereich, id, monat) {
 
   const stand = kontostand(kasse);
   const summen = monatsSummen(kasse.id, monat);
-  const saldo = summen.einnahmen - summen.ausgaben;
+  const saldo = summen.ergebnis;
 
-  // Buchungen dieses Monats, die neuesten zuerst
-  const buchungen = daten.buchungen
-    .filter(function (b) { return b.kasseId === kasse.id && b.datum.startsWith(monat); })
-    .sort(function (a, b) { return b.datum.localeCompare(a.datum); });
+  // Buchungen und Überträge dieses Monats als eine Liste, die neuesten zuerst
+  const eintraege = [];
+  daten.buchungen.forEach(function (b) {
+    if (b.kasseId === kasse.id && b.datum.startsWith(monat)) {
+      eintraege.push({ datum: b.datum, nr: eintraege.length, html: buchungsZeile(b) });
+    }
+  });
+  daten.uebertraege.forEach(function (u) {
+    if ((u.vonKasseId === kasse.id || u.nachKasseId === kasse.id) && u.datum.startsWith(monat)) {
+      eintraege.push({ datum: u.datum, nr: eintraege.length, html: uebertragsZeile(u, kasse.id) });
+    }
+  });
+  // Bei gleichem Datum steht das zuletzt Eingetragene oben
+  eintraege.sort(function (a, b) { return b.datum.localeCompare(a.datum) || (b.nr - a.nr); });
 
   let html = "";
 
@@ -148,7 +158,7 @@ function zeichneKasseSeite(bereich, id, monat) {
     '  <p class="leise klein">Startbetrag ' + formatEuro(kasse.startbetrag) + " am " + formatDatum(kasse.startdatum) + "</p>" +
     "</div>" +
     '<div class="knopf-reihe">' +
-    '  <a class="knopf" href="#buchen/' + kasse.id + '">+ Buchung</a>' +
+    '  <a class="knopf" href="#buchen/' + kasse.id + '">+ Buchen</a>' +
     '  <a class="knopf zweit" href="#kasseform/' + kasse.id + '">Bearbeiten</a>' +
     "</div>";
 
@@ -165,14 +175,18 @@ function zeichneKasseSeite(bereich, id, monat) {
     '<div class="karte summen">' +
     '  <div><span class="leise">Einnahmen</span>' + betragMitVorzeichen(summen.einnahmen, "einnahme") + "</div>" +
     '  <div><span class="leise">Ausgaben</span>' + betragMitVorzeichen(summen.ausgaben, "ausgabe") + "</div>" +
+    (summen.uebertraege !== 0
+      ? '  <div><span class="leise">Überträge</span>' +
+        betragMitVorzeichen(Math.abs(summen.uebertraege), summen.uebertraege > 0 ? "einnahme" : "ausgabe") + "</div>"
+      : "") +
     '  <div class="summe-gesamt"><span>Ergebnis</span><span class="betrag' + (saldo < 0 ? " negativ" : "") + '">' + formatEuro(saldo) + "</span></div>" +
     "</div>";
 
   // Liste der Buchungen
-  if (buchungen.length === 0) {
+  if (eintraege.length === 0) {
     html += platzhalter("Keine Buchungen in diesem Monat.");
   } else {
-    html += '<div class="karte liste">' + buchungen.map(buchungsZeile).join("") + "</div>";
+    html += '<div class="karte liste">' + eintraege.map(function (e) { return e.html; }).join("") + "</div>";
   }
 
   bereich.innerHTML = html;
@@ -202,6 +216,29 @@ function buchungsZeile(b) {
     '    <small class="leise">' + schuetzeText(details.join(" · ")) + "</small>" +
     "  </span>" +
     betragMitVorzeichen(b.betrag, b.typ) +
+    "</a>"
+  );
+}
+
+
+// Eine Zeile für einen Übertrag. Aus Sicht der Kasse "kasseId":
+// Geht Geld hinaus, steht dort "An ..." in Rot, kommt es herein "Von ..." in Grün.
+function uebertragsZeile(u, kasseId) {
+  const hinaus = u.vonKasseId === kasseId;
+  const andere = findeKasse(hinaus ? u.nachKasseId : u.vonKasseId);
+  const person = u.personId ? findePerson(u.personId) : null;
+
+  const details = [formatDatum(u.datum)];
+  if (u.notiz) details.push(u.notiz);
+  if (person) details.push("Beitrag von " + person.name);
+
+  return (
+    '<a class="zeile" href="#uebertrag/' + u.id + '">' +
+    '  <span class="zeile-text zweizeilig">' +
+    "    <span>⇄ " + (hinaus ? "An " : "Von ") + schuetzeText(andere ? andere.name : "gelöschte Kasse") + "</span>" +
+    '    <small class="leise">' + schuetzeText(details.join(" · ")) + "</small>" +
+    "  </span>" +
+    betragMitVorzeichen(u.betrag, hinaus ? "ausgabe" : "einnahme") +
     "</a>"
   );
 }

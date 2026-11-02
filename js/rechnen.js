@@ -95,13 +95,21 @@ function regelGewichte(kasse) {
   return gleich;
 }
 
-// Einnahmen und Ausgaben einer Kasse in einem Monat ("2026-11")
+// Einnahmen, Ausgaben und Überträge einer Kasse in einem Monat ("2026-11")
 function monatsSummen(kasseId, monat) {
-  const summen = { einnahmen: 0, ausgaben: 0 };
+  const summen = { einnahmen: 0, ausgaben: 0, uebertraege: 0 };
   daten.buchungen.forEach(function (b) {
     if (b.kasseId !== kasseId || !b.datum.startsWith(monat)) return;
     if (b.typ === "einnahme") summen.einnahmen += b.betrag;
     if (b.typ === "ausgabe") summen.ausgaben += b.betrag;
   });
+  // Überträge: hinein zählt plus, hinaus zählt minus
+  daten.uebertraege.forEach(function (u) {
+    if (!u.datum.startsWith(monat)) return;
+    if (u.nachKasseId === kasseId) summen.uebertraege += u.betrag;
+    if (u.vonKasseId === kasseId) summen.uebertraege -= u.betrag;
+  });
+  // Ergebnis: um so viel hat sich der Stand im Monat verändert
+  summen.ergebnis = summen.einnahmen - summen.ausgaben + summen.uebertraege;
   return summen;
 }

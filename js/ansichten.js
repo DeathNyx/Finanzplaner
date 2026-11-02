@@ -119,3 +119,15 @@ function betragMitVorzeichen(cent, typ) {
   return '<span class="betrag ' + (plus ? "positiv" : "negativ") + '">' +
     (plus ? "+ " : "− ") + formatEuro(cent) + "</span>";
 }
+
+// Zum Umschalten zwischen dem Buchungs und dem Übertrag Formular:
+// Hier werden schon gemachte Eingaben (Betrag, Datum ...) kurz abgelegt,
+// damit sie im anderen Formular nicht neu getippt werden müssen.
+let uebergabe = null;
+
+// Holt die abgelegten Eingaben einmal ab (danach ist die Ablage leer)
+function nimmUebergabe() {
+  const inhalt = uebergabe || {};
+  uebergabe = null;
+  return inhalt;
+}

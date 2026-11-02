@@ -54,16 +54,19 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
     return;
   }
 
+  // Eingaben, die vom Übertrag Formular mitgebracht wurden (falls man umgeschaltet hat)
+  const mit = istNeu ? nimmUebergabe() : {};
+
   // Welche Kasse am Anfang ausgewählt ist
   let startKasse = auswahlKassen[0];
-  const gewuenscht = buchung ? buchung.kasseId : vorgewaehlteKasseId;
+  const gewuenscht = buchung ? buchung.kasseId : (mit.kasseId || vorgewaehlteKasseId);
   auswahlKassen.forEach(function (k) { if (k.id === gewuenscht) startKasse = k; });
 
   // Der "Zustand" merkt sich alles, was sich beim Ausfüllen ändert
   const zustand = {
-    typ: buchung ? buchung.typ : "ausgabe",
+    typ: buchung ? buchung.typ : (mit.typ || "ausgabe"),
     kasse: startKasse,
-    betrag: buchung ? buchung.betrag : 0,
+    betrag: buchung ? buchung.betrag : (mit.betrag || 0),
     // Personen, auf die aufgeteilt wird. Bei alten Buchungen genau die von damals.
     personen: buchung && buchung.anteile ? Object.keys(buchung.anteile) : startKasse.personen.slice(),
     // Gewichte für die Verteilung (z. B. 60 und 40)
@@ -81,10 +84,12 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
     '    <legend class="nur-vorlesen">Art der Buchung</legend>' +
     '    <label><input type="radio" name="typ" value="ausgabe"' + (zustand.typ === "ausgabe" ? " checked" : "") + "><span>Ausgabe</span></label>" +
     '    <label><input type="radio" name="typ" value="einnahme"' + (zustand.typ === "einnahme" ? " checked" : "") + "><span>Einnahme</span></label>" +
+    // Übertrag gibt es nur bei neuen Buchungen (eine Buchung kann kein Übertrag werden)
+    (istNeu ? '    <label><input type="radio" name="typ" value="uebertrag"><span>Übertrag</span></label>' : "") +
     "  </fieldset>" +
     '  <label class="feld">Betrag in €' +
     '    <input id="bBetrag" class="gross-eingabe" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" value="' +
-           (buchung ? betragFuerEingabe(buchung.betrag) : "") + '">' +
+           (buchung ? betragFuerEingabe(buchung.betrag) : (mit.betrag ? betragFuerEingabe(mit.betrag) : "")) + '">' +
     "  </label>" +
     '  <label class="feld">Kasse' +
     '    <select id="bKasse">' +
@@ -95,13 +100,13 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
     "  </label>" +
     '  <label class="feld">Kategorie <select id="bKategorie"></select></label>' +
     '  <label class="feld">Datum' +
-    '    <input id="bDatum" type="date" value="' + (buchung ? buchung.datum : heute()) + '">' +
+    '    <input id="bDatum" type="date" value="' + (buchung ? buchung.datum : (mit.datum || heute())) + '">' +
     "  </label>" +
     '  <div id="bPerson"></div>' +
     '  <div id="bAufteilung"></div>' +
     '  <label class="feld">Notiz (freiwillig)' +
     '    <input id="bNotiz" type="text" maxlength="80" autocomplete="off" value="' +
-           schuetzeText(buchung ? buchung.notiz || "" : "") + '" placeholder="z. B. Wocheneinkauf">' +
+           schuetzeText(buchung ? buchung.notiz || "" : (mit.notiz || "")) + '" placeholder="z. B. Wocheneinkauf">' +
     "  </label>" +
     '  <p id="fehler" class="fehler" hidden></p>' +
     '  <button type="submit" class="knopf">Speichern</button>' +
@@ -228,6 +233,17 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
   // Wechsel zwischen Ausgabe und Einnahme
   formular.querySelectorAll('input[name="typ"]').forEach(function (knopf) {
     knopf.addEventListener("change", function () {
+      // Übertrag hat ein eigenes Formular. Die bisherigen Eingaben nehmen wir mit.
+      if (knopf.value === "uebertrag") {
+        uebergabe = {
+          betrag: leseBetrag(feldBetrag.value) || 0,
+          kasseId: feldKasse.value,
+          datum: document.getElementById("bDatum").value,
+          notiz: document.getElementById("bNotiz").value
+        };
+        location.replace(vorgewaehlteKasseId ? "#uebertrag/neu/" + vorgewaehlteKasseId : "#uebertrag/neu");
+        return;
+      }
       zustand.typ = knopf.value;
       feldKategorie.value = "";
       zeichneKategorien();
