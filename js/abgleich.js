@@ -11,6 +11,7 @@
 // ============================================
 
 import * as cloud from "./cloud.js";
+import * as sync from "./sync.js";
 import { PASSWORT_MINDESTLAENGE } from "./verschluesselung.js";
 
 // Zählt die Zeichenvorgänge, damit ein alter, noch ladender Vorgang
@@ -109,6 +110,7 @@ function zeichneAnmelden(bereich) {
     beschaeftigt(knopf, "Anmeldung läuft …");
     try {
       await cloud.anmelden();
+      sync.starte();
       zeichneAbgleich(bereich);
     } catch (fehler) {
       zeigeFehler(document.getElementById("fehler"), cloud.fehlerText(fehler));
@@ -172,6 +174,7 @@ function zeichneOhneHaushalt(bereich, u) {
     beschaeftigt(knopf, "Haushalt wird angelegt …");
     try {
       await cloud.haushaltAnlegen(pw1);
+      sync.starte();
       zeigeMeldung("Haushalt angelegt");
       zeichneAbgleich(bereich);
     } catch (f) {
@@ -189,6 +192,7 @@ function zeichneOhneHaushalt(bereich, u) {
     beschaeftigt(knopf, "Wird geprüft …");
     try {
       await cloud.beitreten(document.getElementById("code").value, document.getElementById("pw3").value);
+      sync.starte();
       zeigeMeldung("Haushalt beigetreten");
       zeichneAbgleich(bereich);
     } catch (f) {
@@ -226,6 +230,8 @@ async function zeichneImHaushalt(bereich, u, nummer) {
     verbindeAbmelden(bereich);
     document.getElementById("loesen").addEventListener("click", async function () {
       if (!confirm("Verbindung zum Haushalt auf diesem Handy lösen? Deine Daten auf dem Handy bleiben erhalten.")) return;
+      sync.stoppe();
+      sync.vergissStand();
       await cloud.verbindungLoesen();
       zeichneAbgleich(bereich);
     });
@@ -250,6 +256,7 @@ async function zeichneImHaushalt(bereich, u, nummer) {
       beschaeftigt(knopf, "Wird geprüft …");
       try {
         await cloud.passwortErneutEingeben(document.getElementById("pw4").value);
+        sync.starte();
         zeichneAbgleich(bereich);
       } catch (f) {
         zeigeFehler(document.getElementById("fehler"), cloud.fehlerText(f));
@@ -265,8 +272,8 @@ async function zeichneImHaushalt(bereich, u, nummer) {
     '<div class="karte">' +
     "  <h2>☁️ Haushalt verbunden ✓</h2>" +
     "  <p>" + (info.anzahl === 1 ? "Mitglied" : "Mitglieder") + ": <strong>" + schuetzeText(info.namen.join(", ")) + "</strong></p>" +
-    '  <p class="leise klein">Der Abgleich der Buchungen kommt im nächsten Schritt. Bis dahin bleiben deine Daten nur auf diesem Handy.</p>' +
     "</div>" +
+    '<div id="abgleichStatus"></div>' +
 
     '<div class="karte">' +
     "  <h2>Partnerin einladen</h2>" +
@@ -280,6 +287,7 @@ async function zeichneImHaushalt(bereich, u, nummer) {
     '<p class="leise klein">Beim Verlassen bleiben deine Daten auf diesem Handy erhalten. Nur der Abgleich endet.</p>';
 
   verbindeAbmelden(bereich);
+  zeigeAbgleichStatus(bereich);
 
   // Einladung erstellen
   const knopfEinladen = document.getElementById("einladen");
@@ -320,7 +328,9 @@ async function zeichneImHaushalt(bereich, u, nummer) {
     const knopf = this;
     beschaeftigt(knopf, "Wird verlassen …");
     try {
+      sync.stoppe();
       await cloud.haushaltVerlassen();
+      sync.vergissStand();
       zeigeMeldung("Haushalt verlassen");
       zeichneAbgleich(bereich);
     } catch (f) {
@@ -330,16 +340,107 @@ async function zeichneImHaushalt(bereich, u, nummer) {
   });
 }
 
+// Karte mit dem Stand des Abgleichs (aktualisiert sich selbst)
+function zeigeAbgleichStatus(bereich) {
+  const ort = document.getElementById("abgleichStatus");
+  if (!ort) return;
+  const s = sync.holeStatus();
+
+  // Beim ersten Abgleich haben beide Seiten Daten: nachfragen
+  if (s.zustand === "entscheidung") {
+    ort.innerHTML =
+      '<div class="karte warnung">' +
+      "  <h2>Erster Abgleich: Wie weiter?</h2>" +
+      "  <p>Auf diesem Handy und im Haushalt gibt es schon Daten.</p>" +
+      '  <button type="button" id="wahlHaushalt" class="knopf">Daten des Haushalts übernehmen</button>' +
+      '  <p class="klein">Empfohlen für ein zweites Handy. Die Daten auf diesem Handy werden ersetzt. Vorher wird eine Sicherheitskopie angelegt.</p>' +
+      '  <button type="button" id="wahlZusammen" class="knopf zweit">Beide zusammenführen</button>' +
+      '  <p class="klein">Alles von beiden Seiten bleibt erhalten. Dabei können Kategorien oder Kassen doppelt vorkommen.</p>' +
+      "</div>";
+    document.getElementById("wahlHaushalt").addEventListener("click", function () {
+      if (confirm("Daten dieses Handys durch die des Haushalts ersetzen?")) sync.entscheide("haushalt");
+    });
+    document.getElementById("wahlZusammen").addEventListener("click", function () {
+      sync.entscheide("zusammen");
+    });
+    return;
+  }
+
+  const texte = {
+    aus: "Abgleich ist aus.",
+    verbinde: "Verbindung wird hergestellt …",
+    aktiv: s.ausstehend > 0 ? "Wird übertragen: " + s.ausstehend + " Einträge …" : "Alles abgeglichen ✓",
+    offline: "Kein Internet. Änderungen werden nachgeschickt, sobald wieder Netz da ist.",
+    fehler: "Problem beim Abgleich: " + (s.fehler || "unbekannt")
+  };
+  const zeit = s.letzterAbgleich
+    ? "Zuletzt abgeglichen um " + s.letzterAbgleich.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr."
+    : "";
+  ort.innerHTML =
+    '<div class="karte">' +
+    "  <h2>Abgleich</h2>" +
+    '  <p class="' + (s.zustand === "fehler" ? "fehler" : "") + '">' + schuetzeText(texte[s.zustand] || "") + "</p>" +
+    '  <p class="leise klein">' + zeit + (s.anzahlImHaushalt ? " " + s.anzahlImHaushalt + " Einträge im Haushalt." : "") + "</p>" +
+    '  <button type="button" id="jetztAbgleichen" class="knopf zweit">Jetzt abgleichen</button>' +
+    "</div>";
+  document.getElementById("jetztAbgleichen").addEventListener("click", function () {
+    if (sync.holeStatus().zustand === "aktiv") sync.hochladen();
+    else sync.starte();
+    zeigeMeldung("Abgleich gestartet");
+  });
+}
+
 // Knopf "Abmelden" in der Nutzerkarte
 function verbindeAbmelden(bereich) {
   const knopf = document.getElementById("abmelden");
   if (!knopf) return;
   knopf.addEventListener("click", async function () {
+    sync.stoppe();
     await cloud.abmelden();
     zeigeMeldung("Abgemeldet");
     zeichneAbgleich(bereich);
   });
 }
+
+
+// ============================================
+// Anzeige oben in der Kopfzeile: ☁️ mit Zustand des Abgleichs
+// ============================================
+function richteAnzeigeEin() {
+  const kopf = document.querySelector(".kopf");
+  const anzeige = document.createElement("a");
+  anzeige.id = "syncAnzeige";
+  anzeige.className = "sync-anzeige";
+  anzeige.href = "#abgleich";
+  anzeige.hidden = true;
+  kopf.appendChild(anzeige);
+
+  sync.beobachte(function (s) {
+    const symbole = {
+      verbinde: ["☁️ …", "Abgleich verbindet"],
+      aktiv: s.ausstehend > 0 ? ["☁️ ⏳", "Abgleich überträgt"] : ["☁️ ✓", "Alles abgeglichen"],
+      offline: ["☁️ ✗", "Abgleich wartet auf Internet"],
+      entscheidung: ["☁️ ?", "Abgleich wartet auf deine Entscheidung"],
+      fehler: ["☁️ ⚠️", "Problem beim Abgleich"]
+    };
+    const sym = symbole[s.zustand];
+    anzeige.hidden = !sym;
+    if (sym) {
+      anzeige.textContent = sym[0];
+      anzeige.setAttribute("aria-label", sym[1]);
+      anzeige.title = sym[1];
+    }
+    // Auf dem Abgleich Bildschirm die Statuskarte mitziehen
+    if (location.hash.startsWith("#abgleich") && document.getElementById("abgleichStatus")) {
+      zeigeAbgleichStatus(document.getElementById("inhalt"));
+    }
+  });
+}
+
+richteAnzeigeEin();
+
+// Gehört dieses Handy zu einem Haushalt? Dann den Abgleich gleich starten.
+if (cloud.lokalerHaushalt()) sync.starte();
 
 
 // ============================================

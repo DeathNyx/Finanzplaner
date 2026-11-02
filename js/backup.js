@@ -99,6 +99,16 @@ function ersetzeDaten(neueDaten) {
   speichereDaten();
 }
 
+// Ist dieses Handy mit einem Haushalt verbunden (Abgleich)?
+function imHaushalt() {
+  try { return !!localStorage.getItem("finanzplaner_haushalt"); } catch (e) { return false; }
+}
+
+// Zusatz für Rückfragen, wenn ein Haushalt verbunden ist
+function haushaltHinweis() {
+  return imHaushalt() ? "\n\nAchtung: Dieses Handy ist mit einem Haushalt verbunden. Die Änderung wird auch auf die anderen Handys übertragen." : "";
+}
+
 // Kurze Zusammenfassung, z. B. "2 Personen, 4 Kassen, 37 Buchungen"
 function datenZusammenfassung(d) {
   return d.personen.length + " Personen, " + d.kassen.length + " Kassen, " +
@@ -202,7 +212,7 @@ function zeichneBackup(bereich) {
       }
       const frage = "Backup einlesen?\n\nIm Backup: " + datenZusammenfassung(neueDaten) +
         ".\n\nAlle aktuellen Daten in diesem Browser werden dadurch ersetzt.";
-      if (!confirm(frage)) {
+      if (!confirm(frage + haushaltHinweis())) {
         ereignis.target.value = "";
         return;
       }
@@ -221,7 +231,7 @@ function zeichneBackup(bereich) {
   const knopfZurueck = document.getElementById("rueckgaengig");
   if (knopfZurueck) {
     knopfZurueck.addEventListener("click", function () {
-      if (!confirm("Den Stand von vor dem letzten Einlesen zurückholen? Die jetzigen Daten werden dabei ersetzt.")) return;
+      if (!confirm("Den Stand von vor dem letzten Einlesen zurückholen? Die jetzigen Daten werden dabei ersetzt." + haushaltHinweis())) return;
       let alt;
       try {
         alt = JSON.parse(localStorage.getItem(SCHLUESSEL_VOR_IMPORT));
@@ -239,6 +249,10 @@ function zeichneBackup(bereich) {
 
   // Beispieldaten aus der Datei beispieldaten.json laden
   document.getElementById("beispiel").addEventListener("click", function () {
+    if (imHaushalt()) {
+      alert("Beispieldaten gehen nicht, solange dieses Handy mit einem Haushalt verbunden ist. Sonst würden sie auch auf die anderen Handys übertragen.");
+      return;
+    }
     if (!confirm("Beispieldaten laden? Deine aktuellen Daten werden ersetzt (du kannst sie danach zurückholen).")) return;
     fetch("beispieldaten.json")
       .then(function (antwort) {
@@ -257,7 +271,7 @@ function zeichneBackup(bereich) {
 
   // Alles löschen, mit doppelter Sicherheitsfrage
   document.getElementById("allesLoeschen").addEventListener("click", function () {
-    if (!confirm("Wirklich ALLE Daten in diesem Browser löschen? Mach vorher am besten ein Backup.")) return;
+    if (!confirm("Wirklich ALLE Daten in diesem Browser löschen? Mach vorher am besten ein Backup." + haushaltHinweis())) return;
     if (!confirm("Letzte Frage: Alles löschen? Das kann nicht rückgängig gemacht werden.")) return;
     daten = leereDaten();
     speichereDaten();

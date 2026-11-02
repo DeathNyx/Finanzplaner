@@ -69,6 +69,11 @@ export function laden() {
   return ladeVorgang;
 }
 
+// Zugriff auf die geladenen Firebase Bausteine (für den Abgleich in sync.js)
+export function firebase() {
+  return fb;
+}
+
 // Der angemeldete Nutzer (oder null)
 export function nutzer() {
   return fb ? fb.auth.currentUser : null;
