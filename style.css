@@ -975,3 +975,20 @@ p .farbpunkt {
 .abschnitt small {
   font-weight: 400;
 }
+
+/* Betrag mit kleiner Zeile darunter (z. B. "≈ 40,00 € im Monat") */
+.betrag-spalte {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.betrag-spalte small {
+  font-size: 0.8rem;
+}
+
+/* Kleine Zeile, die umbrechen darf, statt abgeschnitten zu werden */
+.zweizeilig small.umbruch {
+  white-space: normal;
+}

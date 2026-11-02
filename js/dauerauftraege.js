@@ -1,6 +1,7 @@
 // ============================================
-// Daueraufträge: alles, was jeden Monat wiederkommt
-// (Gehalt, Miete, Strom, Abos, Beitrag in die Haushaltskasse ...).
+// Daueraufträge: alles, was regelmäßig wiederkommt
+// (Gehalt, Miete, Strom, Abos, Beitrag in die Haushaltskasse,
+// jährliche Versicherungen ...).
 //
 // So sieht ein Dauerauftrag in den Daten aus:
 // {
@@ -11,7 +12,8 @@
 //   kasseId, kategorieId, bezahltVon   (bei Ausgabe und Einnahme)
 //   vonKasseId, nachKasseId            (bei Übertrag)
 //   tag: 1 (Tag im Monat, 1 bis 31),
-//   startMonat: "2026-11",
+//   rhythmus: 1, 3, 6 oder 12 (alle wie viele Monate; fehlt er, gilt 1),
+//   startMonat: "2026-11" (Monat der ersten Zahlung, ab hier im Rhythmus),
 //   endeMonat: null oder z. B. "2027-06",
 //   pausiert: false,
 //   zuletztGebucht: "2026-11" (letzter Monat, für den gebucht wurde)
@@ -40,12 +42,50 @@ function faelligAm(auftrag, monat) {
   return monat + "-" + String(tag).padStart(2, "0");
 }
 
-// Ab welchem Monat muss als Nächstes gebucht werden?
-function naechsterMonat(auftrag) {
-  return auftrag.zuletztGebucht ? verschiebeMonat(auftrag.zuletztGebucht, 1) : auftrag.startMonat;
+// Die möglichen Rhythmen: alle wie viele Monate
+const RHYTHMEN = [
+  { monate: 1, name: "Monatlich" },
+  { monate: 3, name: "Vierteljährlich" },
+  { monate: 6, name: "Halbjährlich" },
+  { monate: 12, name: "Jährlich" }
+];
+
+// Alle wie viele Monate wird gebucht? (ältere Aufträge ohne Angabe: jeden Monat)
+function rhythmus(auftrag) {
+  return auftrag.rhythmus || 1;
 }
 
-// Kurze Beschreibung, z. B. "jeden 1. · Girokonto"
+// Name des Rhythmus, z. B. "Vierteljährlich"
+function rhythmusName(auftrag) {
+  const r = RHYTHMEN.find(function (x) { return x.monate === rhythmus(auftrag); });
+  return r ? r.name : "Alle " + rhythmus(auftrag) + " Monate";
+}
+
+// Wie viele Monate liegen zwischen zwei Monaten? ("2026-11", "2027-02") ergibt 3
+function monatsAbstand(von, bis) {
+  const [j1, m1] = von.split("-").map(Number);
+  const [j2, m2] = bis.split("-").map(Number);
+  return (j2 - j1) * 12 + (m2 - m1);
+}
+
+// Ist ein Auftrag in diesem Monat (noch) an der Reihe?
+// Gezählt wird ab dem nächsten offenen Termin, genau wie beim Buchen.
+function imRhythmus(auftrag, monat) {
+  const abstand = monatsAbstand(naechsterMonat(auftrag), monat);
+  return abstand >= 0 && abstand % rhythmus(auftrag) === 0;
+}
+
+// Ab welchem Monat muss als Nächstes gebucht werden?
+function naechsterMonat(auftrag) {
+  return auftrag.zuletztGebucht ? verschiebeMonat(auftrag.zuletztGebucht, rhythmus(auftrag)) : auftrag.startMonat;
+}
+
+// Was kostet ein Auftrag umgerechnet pro Monat? (z. B. 480 € im Jahr sind 40 € im Monat)
+function proMonat(auftrag) {
+  return Math.round(auftrag.betrag / rhythmus(auftrag));
+}
+
+// Kurze Beschreibung, z. B. "jeden 1. · Girokonto" oder "jährlich, nächste am 01.01.2027 · Girokonto"
 function auftragBeschreibung(d) {
   let wo = "";
   if (d.art === "uebertrag") {
@@ -56,7 +96,11 @@ function auftragBeschreibung(d) {
     const kasse = findeKasse(d.kasseId);
     wo = kasse ? kasse.name : "?";
   }
-  let text = "jeden " + d.tag + ". · " + wo;
+  let wann = "jeden " + d.tag + ".";
+  if (rhythmus(d) > 1) {
+    wann = rhythmusName(d).toLowerCase() + ", nächste am " + formatDatum(faelligAm(d, naechsterMonat(d)));
+  }
+  let text = wann + " · " + wo;
   if (d.endeMonat) text += " · bis " + formatMonat(d.endeMonat);
   if (d.pausiert) text = "Pausiert · " + text;
   else if (istBeendet(d) || schuldAbbezahlt(d)) text = "Beendet · " + text;
@@ -140,7 +184,7 @@ function fuehreDauerauftraegeAus() {
       bucheAuftrag(d, monat);
       d.zuletztGebucht = monat;
       anzahl++;
-      monat = verschiebeMonat(monat, 1);
+      monat = verschiebeMonat(monat, rhythmus(d));
     }
   });
 
@@ -166,7 +210,7 @@ function kommendeTermine(d, bis) {
     if (betrag <= 0) break;
     liste.push({ datum: datum, betrag: betrag });
     rest -= betrag;
-    monat = verschiebeMonat(monat, 1);
+    monat = verschiebeMonat(monat, rhythmus(d));
   }
   return liste;
 }
@@ -178,18 +222,19 @@ function erwarteteDauerauftraege(monat) {
     if (d.pausiert || d.art === "uebertrag" || schuldAbbezahlt(d)) return false;
     if (monat < d.startMonat) return false;
     if (d.endeMonat && monat > d.endeMonat) return false;
-    return monat >= naechsterMonat(d);
+    return imRhythmus(d, monat);
   });
 }
 
-// Summe pro Monat aller aktiven Aufträge einer Art
+// Summe pro Monat aller aktiven Aufträge einer Art.
+// Seltenere Zahlungen werden auf den Monat umgerechnet.
 function monatlicheSumme(art) {
   return daten.dauerauftraege
     .filter(function (d) {
       if (d.pausiert || d.art !== art) return false;
       return !istBeendet(d) && !schuldAbbezahlt(d);
     })
-    .reduce(function (summe, d) { return summe + d.betrag; }, 0);
+    .reduce(function (summe, d) { return summe + proMonat(d); }, 0);
 }
 
 
@@ -205,7 +250,7 @@ function zeichneDauerauftraege(bereich) {
     // Summen pro Monat
     html +=
       '<div class="karte summen">' +
-      '  <p class="leise klein">Jeden Monat</p>' +
+      '  <p class="leise klein">Jeden Monat (seltenere Zahlungen auf den Monat umgerechnet)</p>' +
       '  <div><span class="leise">Feste Einnahmen</span>' + betragMitVorzeichen(monatlicheSumme("einnahme"), "einnahme") + "</div>" +
       '  <div><span class="leise">Fixkosten</span>' + betragMitVorzeichen(monatlicheSumme("ausgabe"), "ausgabe") + "</div>" +
       '  <div class="summe-gesamt"><span>Bleibt fest übrig</span><span class="betrag">' +
@@ -218,17 +263,20 @@ function zeichneDauerauftraege(bereich) {
       if (liste.length === 0) return;
       html += '<h2 class="abschnitt">' + gruppe[1] + '</h2><div class="karte liste">';
       liste
-        .sort(function (a, b) { return a.tag - b.tag; })
+        .sort(function (a, b) { return (rhythmus(a) - rhythmus(b)) || (a.tag - b.tag); })
         .forEach(function (d) {
           html +=
             '<a class="zeile' + (d.pausiert || istBeendet(d) || schuldAbbezahlt(d) ? " pausiert" : "") + '" href="#dauerauftrag/' + d.id + '">' +
             '  <span class="zeile-text zweizeilig">' +
             "    <span>" + schuetzeText(d.name) + "</span>" +
-            '    <small class="leise">' + schuetzeText(auftragBeschreibung(d)) + "</small>" +
+            '    <small class="leise umbruch">' + schuetzeText(auftragBeschreibung(d)) + "</small>" +
             "  </span>" +
+            '  <span class="betrag-spalte">' +
             (d.art === "uebertrag"
               ? '<span class="betrag">' + formatEuro(d.betrag) + "</span>"
               : betragMitVorzeichen(d.betrag, d.art)) +
+            (rhythmus(d) > 1 ? '<small class="leise">≈ ' + formatEuro(proMonat(d)) + " im Monat</small>" : "") +
+            "  </span>" +
             "</a>";
         });
       html += "</div>";
@@ -307,17 +355,25 @@ function zeichneDauerauftrag(bereich, id) {
     '    <label class="feld">Von Kasse <select id="dVon">' + kassenOptionen(auftrag && auftrag.vonKasseId ? auftrag.vonKasseId : kassen[0].id) + "</select></label>" +
     '    <label class="feld">An Kasse <select id="dNach">' + kassenOptionen(auftrag && auftrag.nachKasseId ? auftrag.nachKasseId : zweiteKasse) + "</select></label>" +
     "  </div>" +
+    '  <label class="feld">Wie oft' +
+    '    <select id="dRhythmus">' +
+    RHYTHMEN.map(function (r) {
+      return '<option value="' + r.monate + '"' + ((auftrag ? rhythmus(auftrag) : 1) === r.monate ? " selected" : "") + ">" + r.name + "</option>";
+    }).join("") +
+    "    </select>" +
+    "  </label>" +
     '  <label class="feld">Tag im Monat' +
     '    <input id="dTag" type="number" min="1" max="31" step="1" inputmode="numeric" value="' + (auftrag ? auftrag.tag : 1) + '">' +
     "  </label>" +
     '  <p class="leise klein">Hat ein Monat weniger Tage, wird am letzten Tag gebucht.</p>' +
-    '  <label class="feld">Erster Monat' +
+    '  <label class="feld">Monat der ersten Zahlung' +
     '    <input id="dStart" type="month" value="' + (auftrag ? auftrag.startMonat : dieserMonat) + '">' +
     "  </label>" +
     '  <label class="feld">Letzter Monat (freiwillig)' +
     '    <input id="dEnde" type="month" value="' + (auftrag && auftrag.endeMonat ? auftrag.endeMonat : "") + '">' +
     "  </label>" +
-    '  <p class="leise klein">Leer lassen, wenn es kein Ende gibt. Für Raten trägst du den Monat der letzten Rate ein.</p>' +
+    '  <p class="leise klein">Bei seltenen Zahlungen bestimmt der erste Monat den Rhythmus. Beispiel: jährlich mit erstem Monat Januar 2027 heißt jedes Jahr im Januar.</p>' +
+    '  <p class="leise klein">Letzter Monat: leer lassen, wenn es kein Ende gibt. Für Raten trägst du den Monat der letzten Rate ein.</p>' +
     (istNeu ? "" :
       '  <label class="schalter"><input id="dPausiert" type="checkbox"' + (auftrag.pausiert ? " checked" : "") + "><span>Pausiert (wird nicht gebucht)</span></label>") +
     '  <p id="dHinweis" class="hinweis"></p>' +
@@ -397,16 +453,19 @@ function zeichneDauerauftrag(bereich, id) {
     const hinweis = document.getElementById("dHinweis");
     const tag = Number(document.getElementById("dTag").value);
     const start = document.getElementById("dStart").value;
+    const abstand = Number(document.getElementById("dRhythmus").value);
     if (!istNeu || !tag || !/^\d{4}-\d{2}$/.test(start)) {
       hinweis.textContent = "";
       return;
     }
-    const erstes = faelligAm({ tag: Math.min(Math.max(tag, 1), 31) }, start);
+    const probe = { tag: Math.min(Math.max(tag, 1), 31) };
+    const erstes = faelligAm(probe, start);
+    const danach = abstand > 1 ? " Danach am " + formatDatum(faelligAm(probe, verschiebeMonat(start, abstand))) + " und so weiter." : "";
     if (erstes <= heute()) {
       hinweis.textContent = "Achtung: Der " + formatDatum(erstes) + " ist schon vorbei. Die App bucht das gleich nach dem Speichern. " +
-        "Hast du es schon von Hand gebucht, wähle als ersten Monat lieber den nächsten.";
+        "Hast du es schon von Hand gebucht, wähle als ersten Monat lieber den nächsten Termin." + danach;
     } else {
-      hinweis.textContent = "Erste Buchung am " + formatDatum(erstes) + ".";
+      hinweis.textContent = "Erste Buchung am " + formatDatum(erstes) + "." + danach;
     }
   }
 
@@ -444,6 +503,7 @@ function zeichneDauerauftrag(bereich, id) {
       name: name,
       betrag: betrag,
       tag: tag,
+      rhythmus: Number(document.getElementById("dRhythmus").value),
       startMonat: startMonat,
       endeMonat: endeMonat,
       kasseId: null,
@@ -472,9 +532,9 @@ function zeichneDauerauftrag(bereich, id) {
       daten.dauerauftraege.push(Object.assign({ id: neueId("dau"), pausiert: false, zuletztGebucht: null }, werte));
     } else {
       werte.pausiert = document.getElementById("dPausiert").checked;
-      // Wurde der Start nach hinten verschoben, nichts vor dem neuen Start nachholen
+      // Wurde der Start hinter die letzte Buchung verschoben, ab dem neuen Start neu zählen
       if (auftrag.zuletztGebucht && werte.startMonat > auftrag.zuletztGebucht) {
-        auftrag.zuletztGebucht = verschiebeMonat(werte.startMonat, -1);
+        auftrag.zuletztGebucht = null;
       }
       Object.assign(auftrag, werte);
     }

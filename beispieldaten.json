@@ -598,6 +598,42 @@
         "name": "Rate Autokredit",
         "betrag": 25000,
         "tag": 15
+      },
+      {
+        "kasseId": "kas_giro",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": null,
+        "schuldId": null,
+        "id": "dau_kfz",
+        "art": "ausgabe",
+        "name": "Kfz Versicherung",
+        "betrag": 48000,
+        "kategorieId": "kat_mvz387g6_u37v",
+        "tag": 1,
+        "rhythmus": 12,
+        "startMonat": "2027-01"
+      },
+      {
+        "kasseId": "kas_giro",
+        "bezahltVon": null,
+        "vonKasseId": null,
+        "nachKasseId": null,
+        "endeMonat": null,
+        "pausiert": false,
+        "zuletztGebucht": null,
+        "schuldId": null,
+        "id": "dau_rundfunk",
+        "art": "ausgabe",
+        "name": "Rundfunkbeitrag",
+        "betrag": 5508,
+        "kategorieId": "kat_mvz387g6_sm2u",
+        "tag": 15,
+        "rhythmus": 3,
+        "startMonat": "2026-11"
       }
     ],
     "schulden": [

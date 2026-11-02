@@ -52,7 +52,8 @@ function voraussichtlichesEnde(schuld) {
   // Erste noch offene Rate: laut Dauerauftrag, sonst nächster Monat
   const auftrag = ratenAuftrag(schuld);
   const ersterMonat = auftrag ? naechsterMonat(auftrag) : verschiebeMonat(heute().slice(0, 7), 1);
-  return { raten: raten, letzterMonat: verschiebeMonat(ersterMonat, raten - 1) };
+  const abstand = auftrag ? rhythmus(auftrag) : 1;
+  return { raten: raten, letzterMonat: verschiebeMonat(ersterMonat, (raten - 1) * abstand) };
 }
 
 // Text zum Ende, z. B. "noch 17 Raten, voraussichtlich bis März 2028"
@@ -165,7 +166,8 @@ function zeichneSchuld(bereich, id) {
     // Rate automatisch buchen?
     if (auftrag) {
       html += '<div class="karte"><p>🔁 Die Rate wird automatisch gebucht: ' +
-        '<a href="#dauerauftrag/' + auftrag.id + '">' + schuetzeText(auftrag.name) + "</a>, jeden " + auftrag.tag + ".</p></div>";
+        '<a href="#dauerauftrag/' + auftrag.id + '">' + schuetzeText(auftrag.name) + "</a>, " +
+        (rhythmus(auftrag) > 1 ? rhythmusName(auftrag).toLowerCase() + " am " : "jeden ") + auftrag.tag + ".</p></div>";
     } else if (rest > 0 && schuld.rate) {
       html += '<button type="button" id="ratenAuftrag" class="knopf">🔁 Rate als Dauerauftrag anlegen</button>';
     }
