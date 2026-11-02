@@ -1,0 +1,1303 @@
+/* ============================================
+   Aussehen der App. Mobil zuerst gedacht:
+   große Schrift, große Knöpfe, alles gut lesbar.
+   ============================================ */
+
+/* Farben an einer Stelle, damit man sie leicht ändern kann */
+:root {
+  --hintergrund: #f4f6fa;
+  --flaeche: #ffffff;
+  --text: #1c2330;
+  --text-leise: #5b6577;
+  --akzent: #1f6feb;
+  --rahmen: #dde2ea;
+  --navi-hoehe: 68px;
+
+  /* Diagrammfarben (geprüft auf Farbschwäche und Kontrast) */
+  --serie-1: #2a78d6;   /* Einnahmen, Vermögen */
+  --serie-2: #eb6834;   /* Ausgaben */
+  --plus: #2a78d6;      /* Übrig */
+  --minus: #e34948;     /* Mehr ausgegeben */
+  --gitter: #e9ebef;
+  --achse: #c3c7cf;
+  --achsen-text: #6b7280;
+}
+
+/* Dunkler Modus, wenn das Handy auf dunkel eingestellt ist */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hintergrund: #11151c;
+    --flaeche: #1b212b;
+    --text: #e8ecf2;
+    --text-leise: #9aa4b5;
+    --akzent: #4c8dff;
+    --rahmen: #2c3442;
+
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
+    --plus: #3987e5;
+    --minus: #e66767;
+    --gitter: #262d39;
+    --achse: #3a4352;
+    --achsen-text: #9aa4b5;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Versteckte Elemente bleiben immer versteckt, auch wenn eine andere Regel sie anzeigen würde */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  background: var(--hintergrund);
+  color: var(--text);
+}
+
+/* Kopfzeile oben, bleibt beim Scrollen sichtbar */
+.kopf {
+  position: sticky;
+  top: 0;
+  background: var(--akzent);
+  color: #fff;
+  padding: 14px 16px;
+  padding-top: calc(14px + env(safe-area-inset-top));
+}
+
+.kopf h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+/* Inhaltsbereich. Unten Platz lassen, damit die Navi nichts verdeckt */
+.inhalt {
+  padding: 16px;
+  padding-bottom: calc(var(--navi-hoehe) + 24px + env(safe-area-inset-bottom));
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Eine Karte ist ein weißer Kasten mit runden Ecken */
+.karte {
+  background: var(--flaeche);
+  border: 1px solid var(--rahmen);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.leise {
+  color: var(--text-leise);
+}
+
+.karte h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.karte p {
+  margin: 0 0 12px;
+}
+
+.karte p:last-child {
+  margin-bottom: 0;
+}
+
+/* Gelber Hinweiskasten für Warnungen */
+.warnung {
+  background: #fff4cc;
+  border-color: #e6c200;
+  color: #5c4a00;
+}
+
+/* Eingabefelder: groß genug für den Finger.
+   Schriftgröße mindestens 16px, sonst zoomt das iPhone hinein. */
+.feld {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.feld input,
+.feld select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  min-height: 52px;
+  padding: 10px 14px;
+  font-size: 18px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--hintergrund);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+}
+
+.feld input:focus,
+.feld select:focus {
+  outline: 2px solid var(--akzent);
+  border-color: var(--akzent);
+}
+
+/* Navigationsleiste unten, immer sichtbar */
+.navi {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background: var(--flaeche);
+  border-top: 1px solid var(--rahmen);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navi a {
+  flex: 1;
+  min-height: var(--navi-hoehe);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--text-leise);
+  text-decoration: none;
+}
+
+.navi .symbol {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Der gerade geöffnete Bildschirm wird farbig hervorgehoben */
+.navi a.aktiv {
+  color: var(--akzent);
+  font-weight: 600;
+}
+
+/* Der Buchen Knopf in der Mitte fällt besonders auf */
+.navi a.plus .symbol {
+  background: var(--akzent);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* Fehlermeldung in Formularen */
+.fehler {
+  color: #cf222e;
+  font-weight: 600;
+}
+
+/* Text, der nur für Vorleseprogramme gedacht ist (unsichtbar) */
+.nur-vorlesen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ---------- Große Knöpfe ---------- */
+.knopf {
+  display: block;
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+  text-decoration: none;
+  line-height: 30px;
+  color: #fff;
+  background: var(--akzent);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* Zweitrangiger Knopf, z. B. "Abbrechen" */
+.knopf.zweit {
+  color: var(--akzent);
+  background: transparent;
+  border: 2px solid var(--akzent);
+}
+
+/* Gefährlicher Knopf, z. B. "Löschen" */
+.knopf.gefahr {
+  color: #cf222e;
+  background: transparent;
+  border: 2px solid #cf222e;
+  margin-top: 24px;
+}
+
+/* ---------- Listen mit antippbaren Zeilen ---------- */
+.liste {
+  padding: 0;
+  overflow: hidden;
+}
+
+.zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 10px 16px;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rahmen);
+}
+
+.zeile:last-child {
+  border-bottom: none;
+}
+
+.zeile-text {
+  flex: 1;
+}
+
+.pfeil {
+  color: var(--text-leise);
+  font-size: 1.5rem;
+}
+
+/* Runder Farbpunkt vor einem Namen */
+.farbpunkt {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---------- Menü auf dem Bildschirm "Mehr" ---------- */
+.menue {
+  padding: 0;
+  overflow: hidden;
+}
+
+.menue a,
+.menue .bald {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 60px;
+  padding: 10px 16px;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rahmen);
+}
+
+.menue > :last-child {
+  border-bottom: none;
+}
+
+.menue .bald {
+  color: var(--text-leise);
+}
+
+/* ---------- Farbauswahl mit runden Knöpfen ---------- */
+.farbwahl {
+  border: none;
+  padding: 0;
+  margin: 0 0 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.farbwahl legend {
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.farbwahl label {
+  cursor: pointer;
+}
+
+/* Den eigentlichen Auswahlpunkt verstecken, wir zeigen stattdessen Kreise */
+.farbwahl input {
+  position: absolute;
+  opacity: 0;
+}
+
+.farbwahl input + span {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  box-shadow: 0 0 0 1px var(--rahmen);
+}
+
+/* Die gewählte Farbe bekommt einen dicken Ring */
+.farbwahl input:checked + span {
+  border-color: var(--flaeche);
+  box-shadow: 0 0 0 3px var(--text);
+}
+
+.farbwahl input:focus-visible + span {
+  outline: 2px solid var(--akzent);
+  outline-offset: 4px;
+}
+
+/* Kleinere Schrift für Hinweise */
+.klein {
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+/* ---------- Beträge ---------- */
+.betrag {
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.betrag.gross {
+  font-size: 1.6rem;
+}
+
+/* Negative Beträge in Rot */
+.betrag.negativ {
+  color: #cf222e;
+}
+
+/* Gesamtsumme oben in der Kassenliste */
+.gesamt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ---------- Zeile einer Kasse mit farbigem Streifen links ---------- */
+.kasse-zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 10px 16px;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rahmen);
+  border-left: 6px solid var(--kassenfarbe);
+}
+
+.kasse-zeile:last-child {
+  border-bottom: none;
+}
+
+.kasse-zeile .zeile-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.kasse-zeile small {
+  font-size: 0.85rem;
+}
+
+/* Archivierte Kassen zum Aufklappen */
+.archiv summary {
+  min-height: 56px;
+  padding: 14px 16px;
+  cursor: pointer;
+  color: var(--text-leise);
+  font-weight: 600;
+}
+
+.archiv[open] summary {
+  border-bottom: 1px solid var(--rahmen);
+}
+
+.archiv .kasse-zeile {
+  opacity: 0.7;
+}
+
+/* ---------- Umschalter (z. B. Persönlich / Gemeinsam) ---------- */
+.umschalter {
+  border: none;
+  padding: 0;
+  margin: 8px 0 16px;
+  display: flex;
+  gap: 0;
+}
+
+.umschalter legend {
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.umschalter label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.umschalter input {
+  position: absolute;
+  opacity: 0;
+}
+
+.umschalter span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 8px;
+  font-weight: 600;
+  color: var(--akzent);
+  border: 2px solid var(--akzent);
+  margin-left: -2px;
+}
+
+.umschalter label:first-of-type span {
+  border-radius: 10px 0 0 10px;
+  margin-left: 0;
+}
+
+.umschalter label:last-of-type span {
+  border-radius: 0 10px 10px 0;
+}
+
+/* Die gewählte Möglichkeit ist ausgefüllt */
+.umschalter input:checked + span {
+  color: #fff;
+  background: var(--akzent);
+}
+
+.umschalter input:focus-visible + span {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* ---------- Auswahlliste mit Häkchen oder Punkt ---------- */
+.auswahl {
+  border: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.auswahl legend {
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.auswahl label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.auswahl input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--akzent);
+  margin: 0;
+}
+
+/* ---------- Prozentaufteilung ---------- */
+.prozente input[type="range"] {
+  width: 100%;
+  height: 44px;
+  accent-color: var(--akzent);
+  margin: 0 0 8px;
+}
+
+.prozent-zeile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.prozent-zeile input {
+  width: 90px;
+  min-height: 50px;
+  padding: 8px 10px;
+  font-size: 18px;
+  font-family: inherit;
+  text-align: right;
+  color: var(--text);
+  background: var(--hintergrund);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+}
+
+/* Positive Beträge in Grün */
+.betrag.positiv {
+  color: #1a7f37;
+}
+
+@media (prefers-color-scheme: dark) {
+  .betrag.positiv { color: #3fb950; }
+  .betrag.negativ, .fehler { color: #ff6b6b; }
+}
+
+/* Großes Betragsfeld beim Buchen */
+.feld input.gross-eingabe {
+  font-size: 28px;
+  font-weight: 700;
+  min-height: 64px;
+  text-align: right;
+}
+
+/* Knopf, der wie ein Link aussieht (z. B. "Anpassen") */
+.link-knopf {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--akzent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Zwei Knöpfe nebeneinander */
+.knopf-reihe {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.knopf-reihe .knopf {
+  margin-top: 0;
+}
+
+/* ---------- Seite einer Kasse ---------- */
+.kassen-kopf {
+  border-top: 6px solid var(--kassenfarbe);
+}
+
+.kassen-kopf p {
+  margin-bottom: 4px;
+}
+
+/* Monat wählen: ‹ November 2026 › */
+.monatswahl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+.monatswahl .link-knopf {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+/* Summen eines Monats */
+.summen div {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.summen .summe-gesamt {
+  border-top: 1px solid var(--rahmen);
+  margin-top: 6px;
+  padding-top: 10px;
+  font-weight: 700;
+}
+
+/* Zeile mit Hauptzeile und kleiner Zeile darunter */
+.zweizeilig {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.zweizeilig small {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Aufteilung einer Buchung ---------- */
+.aufteilung {
+  background: var(--hintergrund);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+  padding: 8px 12px 12px;
+  margin-bottom: 16px;
+}
+
+.aufteilung-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.anteil-zeile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.anteil-feld {
+  width: 120px;
+  min-height: 48px;
+  padding: 8px 10px;
+  font-size: 18px;
+  font-family: inherit;
+  text-align: right;
+  color: var(--text);
+  background: var(--flaeche);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+  margin: 4px 0;
+}
+
+#anteilSumme {
+  margin: 8px 0 0;
+}
+
+/* ---------- Kurze Meldung unten ---------- */
+.meldung {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--navi-hoehe) + 16px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 20px);
+  max-width: calc(100% - 32px);
+  padding: 12px 20px;
+  color: #fff;
+  background: #1c2330;
+  border-radius: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.meldung.sichtbar {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Knopf "Tauschen" zwischen Von und An */
+.tauschen {
+  display: block;
+  margin: -6px 0 6px auto;
+}
+
+/* ---------- Ausgleich ---------- */
+.ausgleich-karte {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.ausgleich-karte p {
+  margin: 4px 0 0;
+}
+
+.zahlung {
+  padding: 8px 0 12px;
+  border-bottom: 1px solid var(--rahmen);
+  margin-bottom: 8px;
+}
+
+.zahlung .knopf {
+  margin-top: 8px;
+}
+
+.person-ausgleich {
+  padding: 8px 0 12px;
+  border-bottom: 1px solid var(--rahmen);
+  margin-bottom: 8px;
+}
+
+.person-kopf {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Eine Zeile mit Text links und Betrag rechts */
+.posten {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.posten > span:first-child {
+  flex: 1;
+}
+
+.posten.summe {
+  font-weight: 700;
+  border-top: 1px solid var(--rahmen);
+  margin-top: 4px;
+  padding-top: 6px;
+}
+
+/* Farbpunkte im Fließtext etwas kleiner */
+p .farbpunkt {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  vertical-align: -1px;
+}
+
+/* Keine Trennlinie nach dem letzten Eintrag */
+.zahlung:last-child,
+.person-ausgleich:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* ---------- Übersicht ---------- */
+.gesamt-gross {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gesamt-gross .betrag.gross {
+  font-size: 2.1rem;
+}
+
+/* Überschrift über einem Abschnitt */
+.abschnitt {
+  font-size: 1rem;
+  color: var(--text-leise);
+  margin: 20px 4px 8px;
+}
+
+/* Kassen als Kacheln, zwei nebeneinander */
+.kacheln {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.kachel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 96px;
+  padding: 12px 14px;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--flaeche);
+  border: 1px solid var(--rahmen);
+  border-top: 6px solid var(--kassenfarbe);
+  border-radius: 14px;
+  min-width: 0;
+}
+
+.kachel-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kachel small {
+  font-size: 0.8rem;
+}
+
+/* Monatskarte auf der Übersicht ist antippbar */
+.summen.kurz {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.summe-gesamt.gross-zeile {
+  font-size: 1.2rem;
+}
+
+/* Anleitung beim ersten Start */
+.schritte {
+  padding-left: 22px;
+}
+
+.schritte li {
+  margin-bottom: 10px;
+}
+
+.schritte li.erledigt {
+  color: var(--text-leise);
+  text-decoration: line-through;
+}
+
+.schritte a {
+  color: var(--akzent);
+  font-weight: 600;
+}
+
+/* ---------- Kategorien mit Balken ---------- */
+.kategorie {
+  margin-bottom: 10px;
+}
+
+.kategorie:last-child {
+  margin-bottom: 0;
+}
+
+.kategorie .posten .klein {
+  margin: 0 8px 0 0;
+}
+
+.balken {
+  height: 8px;
+  background: var(--hintergrund);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.balken span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.balken .ausgabe {
+  background: #cf222e;
+}
+
+.balken .einnahme {
+  background: #1a7f37;
+}
+
+/* ---------- Daueraufträge ---------- */
+.zeile.pausiert {
+  opacity: 0.55;
+}
+
+/* Hinweis in einem Formular (z. B. wann zum ersten Mal gebucht wird) */
+.hinweis {
+  color: var(--text-leise);
+  font-size: 0.9rem;
+}
+
+.hinweis:empty {
+  display: none;
+}
+
+/* Ein Häkchen mit Text daneben, groß genug für den Finger */
+.schalter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.schalter input {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--akzent);
+}
+
+.klein a,
+.leise a {
+  color: var(--akzent);
+}
+
+/* ---------- Schulden ---------- */
+.schuld-zeile .balken {
+  margin-top: 6px;
+}
+
+/* ---------- Backup ---------- */
+/* Datei auswählen: Das eigentliche Feld ist unsichtbar, man tippt auf den Knopf */
+.datei-knopf {
+  position: relative;
+  overflow: hidden;
+}
+
+.datei-knopf input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Erinnerung auf der Übersicht ist antippbar */
+.erinnerung {
+  display: block;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.menue small.fehler {
+  font-size: 0.8rem;
+}
+
+/* Überschrift in einem gelben Hinweiskasten */
+.warnung h2 {
+  color: inherit;
+}
+
+.warnung .schritte {
+  margin: 8px 0;
+}
+
+.warnung a {
+  color: inherit;
+  font-weight: 700;
+}
+
+/* ---------- Anstehende Zahlungen ---------- */
+/* Linke Spalte mit "Morgen" und "Fr 07.11." */
+.termin-tag {
+  display: flex;
+  flex-direction: column;
+  width: 92px;
+  flex-shrink: 0;
+  line-height: 1.25;
+}
+
+.termin-tag strong {
+  font-size: 0.9rem;
+}
+
+.termin-tag small {
+  font-size: 0.8rem;
+  color: var(--text-leise);
+}
+
+/* Heute schon gebuchte Einträge etwas blasser */
+.zeile.gebucht {
+  opacity: 0.6;
+}
+
+.abschnitt small {
+  font-weight: 400;
+}
+
+/* Betrag mit kleiner Zeile darunter (z. B. "≈ 40,00 € im Monat") */
+.betrag-spalte {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.betrag-spalte small {
+  font-size: 0.8rem;
+}
+
+/* Kleine Zeile, die umbrechen darf, statt abgeschnitten zu werden */
+.zweizeilig small.umbruch {
+  white-space: normal;
+}
+
+/* ---------- Sparziele ---------- */
+.spar-karte {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.spar-karte .posten {
+  margin-top: 6px;
+}
+
+.balken.gross {
+  height: 14px;
+  border-radius: 7px;
+  margin: 4px 0 8px;
+}
+
+.balken.gross span {
+  border-radius: 7px;
+}
+
+/* ---------- Diagramme ---------- */
+.verlauf-knopf {
+  margin: 0 0 8px;
+}
+
+/* Filter in einer Zeile über allen Diagrammen */
+.filter-zeile {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.filter-zeile .umschalter {
+  margin: 0;
+  flex: 1 1 200px;
+}
+
+.klein-umschalter span {
+  min-height: 44px;
+  font-size: 0.95rem;
+}
+
+.filter-zeile select {
+  flex: 1 1 140px;
+  min-height: 48px;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--flaeche);
+  border: 2px solid var(--akzent);
+  border-radius: 10px;
+}
+
+.diagramm {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.diagramm h2 {
+  margin-bottom: 4px;
+}
+
+.diagramm figcaption {
+  margin-bottom: 8px;
+}
+
+/* Die Zeichenfläche: Ankerpunkt für die Anzeige beim Antippen */
+.diagramm-flaeche {
+  position: relative;
+}
+
+.diagramm-svg {
+  display: block;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+.diagramm-svg .gitter {
+  stroke: var(--gitter);
+  stroke-width: 1;
+}
+
+.diagramm-svg .achse {
+  stroke: var(--achse);
+  stroke-width: 1;
+}
+
+.diagramm-svg .achsen-text {
+  fill: var(--achsen-text);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.diagramm-svg .wert-text {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.diagramm-svg .linie {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Punkte mit Ring in der Flächenfarbe */
+.diagramm-svg .endpunkt,
+.diagramm-svg .fadenpunkt {
+  stroke: var(--flaeche);
+  stroke-width: 2;
+}
+
+.diagramm-svg .fadenkreuz {
+  stroke: var(--achsen-text);
+  stroke-width: 1;
+  opacity: 0;
+}
+
+.diagramm-svg .fadenkreuz.sichtbar {
+  opacity: 1;
+}
+
+/* Punkt auf der Linie erscheint nur beim Antippen */
+.diagramm-svg .fadenpunkt {
+  opacity: 0;
+}
+
+.diagramm-svg .fadenpunkt.sichtbar {
+  opacity: 1;
+}
+
+/* Hinterlegung des gewählten Monats */
+.diagramm-svg .markierung {
+  fill: var(--text);
+  opacity: 0;
+}
+
+.diagramm-svg .markierung.sichtbar {
+  opacity: 0.06;
+}
+
+.diagramm-svg .markierung.aus {
+  display: none;
+}
+
+/* Unsichtbare, große Flächen zum Antippen */
+.diagramm-svg .trefferflaeche {
+  fill: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.diagramm-svg .trefferflaeche:focus-visible {
+  stroke: var(--akzent);
+  stroke-width: 2;
+}
+
+/* Anzeige beim Antippen */
+.diagramm-tipp {
+  position: absolute;
+  top: -6px;
+  min-width: 140px;
+  padding: 8px 10px;
+  background: var(--flaeche);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.tipp-titel {
+  color: var(--text-leise);
+  margin-bottom: 4px;
+}
+
+.tipp-zeile {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.tipp-zeile strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kurzer Strich in der Reihenfarbe statt eines Kästchens */
+.tipp-strich {
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Legende */
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.85rem;
+  color: var(--text-leise);
+}
+
+.legende span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legende i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* Tabellenansicht */
+.tabellen-ansicht {
+  margin-top: 8px;
+}
+
+.tabellen-ansicht summary {
+  color: var(--akzent);
+  font-weight: 600;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.tabellen-ansicht table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabellen-ansicht th,
+.tabellen-ansicht td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--rahmen);
+  text-align: right;
+}
+
+.tabellen-ansicht th:first-child,
+.tabellen-ansicht td:first-child {
+  text-align: left;
+}
+
+/* Kategorien als waagerechte Balken, antippbar */
+.kategorie-zeile {
+  display: block;
+  width: 100%;
+  padding: 8px 6px;
+  margin: 0 0 2px;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.kategorie-zeile[aria-pressed="true"] {
+  background: var(--hintergrund);
+  font-weight: 600;
+}
+
+.kategorie-spur {
+  display: block;
+  margin-top: 4px;
+}
+
+.kategorie-fuellung {
+  display: block;
+  height: 10px;
+  background: var(--serie-2);
+  border-radius: 0 4px 4px 0;
+}

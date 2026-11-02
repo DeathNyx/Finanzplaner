@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Symbol des Finanzplaners: weißes Euro Zeichen auf blauem Grund -->
+  <rect width="512" height="512" rx="112" fill="#1f6feb"/>
+  <circle cx="256" cy="256" r="178" fill="#ffffff" opacity="0.13"/>
+  <g fill="none" stroke="#ffffff" stroke-linecap="round">
+    <path d="M 338 172 A 118 118 0 1 0 338 340" stroke-width="42"/>
+    <path d="M 112 228 H 282 M 112 286 H 266" stroke-width="34"/>
+  </g>
+</svg>
