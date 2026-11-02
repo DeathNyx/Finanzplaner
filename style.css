@@ -75,6 +75,55 @@ body {
   color: var(--text-leise);
 }
 
+.karte h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.karte p {
+  margin: 0 0 12px;
+}
+
+.karte p:last-child {
+  margin-bottom: 0;
+}
+
+/* Gelber Hinweiskasten für Warnungen */
+.warnung {
+  background: #fff4cc;
+  border-color: #e6c200;
+  color: #5c4a00;
+}
+
+/* Eingabefelder: groß genug für den Finger.
+   Schriftgröße mindestens 16px, sonst zoomt das iPhone hinein. */
+.feld {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.feld input,
+.feld select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  min-height: 52px;
+  padding: 10px 14px;
+  font-size: 18px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--hintergrund);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+}
+
+.feld input:focus,
+.feld select:focus {
+  outline: 2px solid var(--akzent);
+  border-color: var(--akzent);
+}
+
 /* Navigationsleiste unten, immer sichtbar */
 .navi {
   position: fixed;
