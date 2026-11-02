@@ -17,6 +17,12 @@ function formatEuro(cent) {
   return euroFormat.format((cent || 0) / 100);
 }
 
+// Cent als Text für ein Eingabefeld: 123456 wird zu "1234,56".
+// Ohne Tausenderpunkte und ohne €, damit man es leicht ändern kann.
+function betragFuerEingabe(cent) {
+  return ((cent || 0) / 100).toFixed(2).replace(".", ",");
+}
+
 // Eingabe des Nutzers in Cent umwandeln.
 // Erlaubt z. B. "1.234,56", "12,5", "12.50", "7", "-3,20", "5 €".
 // Gibt null zurück, wenn die Eingabe keine gültige Zahl ist.

@@ -333,3 +333,193 @@ body {
   outline: 2px solid var(--akzent);
   outline-offset: 4px;
 }
+
+/* Kleinere Schrift für Hinweise */
+.klein {
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+/* ---------- Beträge ---------- */
+.betrag {
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.betrag.gross {
+  font-size: 1.6rem;
+}
+
+/* Negative Beträge in Rot */
+.betrag.negativ {
+  color: #cf222e;
+}
+
+/* Gesamtsumme oben in der Kassenliste */
+.gesamt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ---------- Zeile einer Kasse mit farbigem Streifen links ---------- */
+.kasse-zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 10px 16px;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rahmen);
+  border-left: 6px solid var(--kassenfarbe);
+}
+
+.kasse-zeile:last-child {
+  border-bottom: none;
+}
+
+.kasse-zeile .zeile-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.kasse-zeile small {
+  font-size: 0.85rem;
+}
+
+/* Archivierte Kassen zum Aufklappen */
+.archiv summary {
+  min-height: 56px;
+  padding: 14px 16px;
+  cursor: pointer;
+  color: var(--text-leise);
+  font-weight: 600;
+}
+
+.archiv[open] summary {
+  border-bottom: 1px solid var(--rahmen);
+}
+
+.archiv .kasse-zeile {
+  opacity: 0.7;
+}
+
+/* ---------- Umschalter (z. B. Persönlich / Gemeinsam) ---------- */
+.umschalter {
+  border: none;
+  padding: 0;
+  margin: 8px 0 16px;
+  display: flex;
+  gap: 0;
+}
+
+.umschalter legend {
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.umschalter label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.umschalter input {
+  position: absolute;
+  opacity: 0;
+}
+
+.umschalter span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 8px;
+  font-weight: 600;
+  color: var(--akzent);
+  border: 2px solid var(--akzent);
+  margin-left: -2px;
+}
+
+.umschalter label:first-of-type span {
+  border-radius: 10px 0 0 10px;
+  margin-left: 0;
+}
+
+.umschalter label:last-of-type span {
+  border-radius: 0 10px 10px 0;
+}
+
+/* Die gewählte Möglichkeit ist ausgefüllt */
+.umschalter input:checked + span {
+  color: #fff;
+  background: var(--akzent);
+}
+
+.umschalter input:focus-visible + span {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* ---------- Auswahlliste mit Häkchen oder Punkt ---------- */
+.auswahl {
+  border: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.auswahl legend {
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.auswahl label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.auswahl input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--akzent);
+  margin: 0;
+}
+
+/* ---------- Prozentaufteilung ---------- */
+.prozente input[type="range"] {
+  width: 100%;
+  height: 44px;
+  accent-color: var(--akzent);
+  margin: 0 0 8px;
+}
+
+.prozent-zeile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.prozent-zeile input {
+  width: 90px;
+  min-height: 50px;
+  padding: 8px 10px;
+  font-size: 18px;
+  font-family: inherit;
+  text-align: right;
+  color: var(--text);
+  background: var(--hintergrund);
+  border: 1px solid var(--rahmen);
+  border-radius: 10px;
+}

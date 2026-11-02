@@ -127,6 +127,24 @@ function personWirdVerwendet(id) {
   return inKasse || inBuchung || inUebertrag;
 }
 
+// Kasse anhand ihrer ID finden
+function findeKasse(id) {
+  return daten.kassen.find(function (k) { return k.id === id; });
+}
+
+// Prüft, ob in einer Kasse schon etwas gebucht wurde
+// (Buchungen, Überträge oder Daueraufträge)
+function kasseWirdVerwendet(id) {
+  const inBuchung = daten.buchungen.some(function (b) { return b.kasseId === id; });
+  const inUebertrag = daten.uebertraege.some(function (u) {
+    return u.vonKasseId === id || u.nachKasseId === id;
+  });
+  const inDauerauftrag = daten.dauerauftraege.some(function (d) {
+    return d.kasseId === id || d.vonKasseId === id || d.nachKasseId === id;
+  });
+  return inBuchung || inUebertrag || inDauerauftrag;
+}
+
 // Hier merken wir uns eine Warnung, falls beim Laden etwas schiefging
 let speicherWarnung = null;
 

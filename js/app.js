@@ -11,6 +11,63 @@
 // Der Zusatz sagt dem Bildschirm, was genau er zeigen soll.
 // ============================================
 
+// ============================================
+// Liste aller Bildschirme.
+//
+// Jeder Bildschirm hat:
+//   titel:   steht oben in der Kopfzeile
+//   tab:     welcher Knopf unten dabei blau leuchtet
+//   zeichne: Funktion, die den Inhalt in den Bereich einsetzt
+// ============================================
+const bildschirme = {
+  uebersicht: {
+    titel: "Übersicht",
+    tab: "uebersicht",
+    zeichne: function (bereich) {
+      bereich.innerHTML = platzhalter("Hier siehst du bald alle Kassen und dein Gesamtvermögen.");
+    }
+  },
+  kassen: {
+    titel: "Kassen",
+    tab: "kassen",
+    zeichne: zeichneKassen
+  },
+  kasse: {
+    titel: "Kasse",
+    tab: "kassen",
+    zeichne: zeichneKasse
+  },
+  buchen: {
+    titel: "Buchen",
+    tab: "buchen",
+    zeichne: function (bereich) {
+      bereich.innerHTML = platzhalter("Hier erfasst du bald Ausgaben, Einnahmen und Überträge.");
+    }
+  },
+  monat: {
+    titel: "Monat",
+    tab: "monat",
+    zeichne: function (bereich) {
+      bereich.innerHTML = platzhalter("Hier siehst du bald, was am Monatsende übrig bleibt.");
+    }
+  },
+  mehr: {
+    titel: "Mehr",
+    tab: "mehr",
+    zeichne: zeichneMehr
+  },
+  personen: {
+    titel: "Personen",
+    tab: "mehr",
+    zeichne: zeichnePersonen
+  },
+  person: {
+    titel: "Person",
+    tab: "mehr",
+    zeichne: zeichnePerson
+  }
+};
+
 // Welcher Bildschirm angezeigt wird, wenn nichts in der Adresse steht
 const startBildschirm = "uebersicht";
 
