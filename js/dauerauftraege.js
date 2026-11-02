@@ -118,13 +118,27 @@ function istBeendet(d) {
   return !!d.endeMonat && d.endeMonat < heute().slice(0, 7);
 }
 
-// Legt für einen Auftrag die Buchung (oder den Übertrag) eines Monats an
+// Feste Kennung für die Buchung eines Auftrags in einem Monat,
+// z. B. "buc_dau_abc_2026-12". Bucht ein zweites Handy denselben
+// Auftrag im selben Monat, entsteht dieselbe Kennung und beim
+// Abgleich gibt es die Buchung trotzdem nur einmal.
+function auftragsKennung(d, monat) {
+  return (d.art === "uebertrag" ? "ueb_" : "buc_") + d.id + "_" + monat;
+}
+
+// Legt für einen Auftrag die Buchung (oder den Übertrag) eines Monats an.
+// Gibt true zurück, wenn wirklich etwas gebucht wurde.
 function bucheAuftrag(d, monat) {
   const datum = faelligAm(d, monat);
+  const kennung = auftragsKennung(d, monat);
+
+  // Schon vorhanden (z. B. vom anderen Handy) oder absichtlich gelöscht: nicht noch einmal buchen
+  const liste = d.art === "uebertrag" ? daten.uebertraege : daten.buchungen;
+  if (liste.some(function (e) { return e.id === kennung; }) || istGeloescht(kennung)) return false;
 
   if (d.art === "uebertrag") {
     daten.uebertraege.push({
-      id: neueId("ueb"),
+      id: kennung,
       vonKasseId: d.vonKasseId,
       nachKasseId: d.nachKasseId,
       betrag: d.betrag,
@@ -133,17 +147,17 @@ function bucheAuftrag(d, monat) {
       notiz: d.name,
       vorlageId: d.id
     });
-    return;
+    return true;
   }
 
   const kasse = findeKasse(d.kasseId);
-  if (!kasse) return;
+  if (!kasse) return false;
 
   // Bei Raten: höchstens so viel buchen, wie noch offen ist
   let betrag = d.betrag;
   const schuld = d.schuldId ? findeSchuld(d.schuldId) : null;
   if (schuld) betrag = Math.min(betrag, restbetrag(schuld));
-  if (betrag <= 0) return;
+  if (betrag <= 0) return false;
 
   // Bei Ausgaben in gemeinsamen Kassen: Aufteilung nach der aktuellen Regel der Kasse
   let anteile = null;
@@ -152,7 +166,7 @@ function bucheAuftrag(d, monat) {
   }
 
   daten.buchungen.push({
-    id: neueId("buc"),
+    id: kennung,
     kasseId: d.kasseId,
     typ: d.art,
     betrag: betrag,
@@ -164,6 +178,7 @@ function bucheAuftrag(d, monat) {
     vorlageId: d.id,
     schuldId: d.schuldId || null
   });
+  return true;
 }
 
 // Bucht alle fälligen Daueraufträge bis heute.
@@ -172,6 +187,7 @@ function fuehreDauerauftraegeAus() {
   const heuteText = heute();
   const dieserMonat = heuteText.slice(0, 7);
   let anzahl = 0;
+  let veraendert = false; // auch übersprungene Monate müssen gespeichert werden
 
   daten.dauerauftraege.forEach(function (d) {
     if (d.pausiert) return;
@@ -181,14 +197,14 @@ function fuehreDauerauftraegeAus() {
     while (monat <= dieserMonat && (!d.endeMonat || monat <= d.endeMonat)) {
       if (faelligAm(d, monat) > heuteText) break; // in diesem Monat noch nicht fällig
       if (schuldAbbezahlt(d)) break;              // Schuld ist schon abbezahlt
-      bucheAuftrag(d, monat);
+      if (bucheAuftrag(d, monat)) anzahl++;
       d.zuletztGebucht = monat;
-      anzahl++;
+      veraendert = true;
       monat = verschiebeMonat(monat, rhythmus(d));
     }
   });
 
-  if (anzahl > 0) speichereDaten();
+  if (veraendert) speichereDaten();
   return anzahl;
 }
 
