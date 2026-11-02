@@ -3,7 +3,9 @@
 //
 // Alle Daten liegen in einem einzigen Paket ("daten").
 // Das Paket hat mehrere Listen, wie Schubladen in einem Schrank.
-// Die Daten bleiben nur auf diesem Gerät in diesem Browser.
+// Die Daten liegen auf diesem Gerät. Für den Abgleich zwischen zwei
+// Handys merkt sich die App bei jedem Eintrag, wann er zuletzt
+// geändert wurde, und führt eine Liste gelöschter Einträge.
 // ============================================
 
 // Unter diesem Namen liegen die Daten im Browser
@@ -11,7 +13,15 @@ const SPEICHER_SCHLUESSEL = "finanzplaner_daten";
 
 // Versionsnummer des Datenaufbaus. Wenn wir den Aufbau später
 // ändern, erkennt die App daran alte Daten und kann sie umbauen.
-const DATEN_VERSION = 1;
+// Version 2: Zeitstempel "geaendert" an jedem Eintrag und Löschmarken.
+const DATEN_VERSION = 2;
+
+// Alle Listen mit Einträgen, die zwischen Handys abgeglichen werden.
+// Die Einstellungen gehören nicht dazu, die bleiben pro Handy.
+const SAMMLUNGEN = [
+  "personen", "kassen", "buchungen", "uebertraege", "dauerauftraege",
+  "schulden", "kategorien", "ausgleiche", "sparziele"
+];
 
 // Ein leeres Datenpaket, so wie es beim allerersten Start aussieht
 function leereDaten() {
@@ -26,6 +36,7 @@ function leereDaten() {
     ausgleiche: [],    // { id, kasseId, vonPersonId, anPersonId, betrag, datum }
     sparziele: [],     // { id, name, kasseId, zielbetrag, zielMonat }
     kategorien: standardKategorien(),
+    geloescht: [],     // Löschmarken: { id, sammlung, zeit }
     einstellungen: {}
   };
 }
@@ -74,6 +85,15 @@ function ladeDaten() {
 
   try {
     const geladen = JSON.parse(text);
+
+    // Ältere Daten werden gleich umgebaut. Vorher eine Sicherheitskopie anlegen.
+    if ((geladen.version || 1) < DATEN_VERSION) {
+      try {
+        const kopieName = SPEICHER_SCHLUESSEL + "_vor_umstellung_v" + DATEN_VERSION;
+        if (!localStorage.getItem(kopieName)) localStorage.setItem(kopieName, text);
+      } catch (e) { /* Sicherheitskopie ist freiwillig */ }
+    }
+
     return ergaenzeFehlendes(geladen);
   } catch (fehler) {
     // Die gespeicherten Daten sind kaputt. Wir löschen sie NICHT,
@@ -86,7 +106,8 @@ function ladeDaten() {
   }
 }
 
-// Falls in älteren Daten eine Liste fehlt, wird sie leer ergänzt
+// Falls in älteren Daten eine Liste fehlt, wird sie leer ergänzt.
+// Danach wird der Aufbau auf die aktuelle Version gebracht.
 function ergaenzeFehlendes(geladen) {
   const vorlage = leereDaten();
   Object.keys(vorlage).forEach(function (schluessel) {
@@ -94,12 +115,90 @@ function ergaenzeFehlendes(geladen) {
       geladen[schluessel] = vorlage[schluessel];
     }
   });
-  return geladen;
+  return baueUm(geladen);
+}
+
+// Bringt ältere Daten auf den aktuellen Aufbau
+function baueUm(d) {
+  if ((d.version || 1) < 2) {
+    // Version 2: Jeder Eintrag bekommt einen Zeitstempel
+    const jetzt = new Date().toISOString();
+    SAMMLUNGEN.forEach(function (sammlung) {
+      (d[sammlung] || []).forEach(function (eintrag) {
+        if (!eintrag.geaendert) eintrag.geaendert = jetzt;
+      });
+    });
+    if (!Array.isArray(d.geloescht)) d.geloescht = [];
+  }
+  d.version = DATEN_VERSION;
+  return d;
+}
+
+
+// ============================================
+// Änderungen erkennen (für den Abgleich zwischen Handys)
+//
+// Beim Speichern vergleicht die App jeden Eintrag mit dem zuletzt
+// gespeicherten Stand:
+//   - neu oder geändert: bekommt den Zeitstempel "geaendert"
+//   - verschwunden: kommt auf die Liste "geloescht" (Löschmarke)
+// So muss nicht jeder Bildschirm selbst daran denken.
+// ============================================
+
+// Zuletzt gespeicherter Stand: { sammlung: { id: Fingerabdruck } }
+let letzterStand = {};
+
+// Ein "Fingerabdruck" eines Eintrags: sein Inhalt als Text, ohne Zeitstempel
+function fingerabdruck(eintrag) {
+  const kopie = Object.assign({}, eintrag);
+  delete kopie.geaendert;
+  return JSON.stringify(kopie);
+}
+
+// Den jetzigen Stand als Vergleichsgrundlage merken
+function merkeStand() {
+  letzterStand = {};
+  SAMMLUNGEN.forEach(function (sammlung) {
+    const abdruecke = {};
+    (daten[sammlung] || []).forEach(function (e) { abdruecke[e.id] = fingerabdruck(e); });
+    letzterStand[sammlung] = abdruecke;
+  });
+}
+
+// Neue und geänderte Einträge mit Zeitstempel versehen, gelöschte vermerken
+function markiereAenderungen() {
+  const jetzt = new Date().toISOString();
+  if (!Array.isArray(daten.geloescht)) daten.geloescht = [];
+
+  SAMMLUNGEN.forEach(function (sammlung) {
+    const vorher = letzterStand[sammlung] || {};
+    const vorhanden = {};
+
+    (daten[sammlung] || []).forEach(function (e) {
+      vorhanden[e.id] = true;
+      if (vorher[e.id] !== fingerabdruck(e) || !e.geaendert) {
+        e.geaendert = jetzt;
+      }
+    });
+
+    Object.keys(vorher).forEach(function (id) {
+      if (!vorhanden[id] && !istGeloescht(id)) {
+        daten.geloescht.push({ id: id, sammlung: sammlung, zeit: jetzt });
+      }
+    });
+  });
+}
+
+// Wurde ein Eintrag mit dieser ID einmal gelöscht?
+function istGeloescht(id) {
+  return (daten.geloescht || []).some(function (m) { return m.id === id; });
 }
 
 // Das aktuelle Datenpaket im Browser speichern.
 // Gibt true zurück, wenn es geklappt hat.
 function speichereDaten() {
+  markiereAenderungen();
+  merkeStand();
   try {
     localStorage.setItem(SPEICHER_SCHLUESSEL, JSON.stringify(daten));
     return true;
@@ -166,3 +265,6 @@ let speicherWarnung = null;
 // Die Daten werden einmal beim Start geladen und liegen dann hier bereit.
 // Alle anderen Teile der App lesen und ändern dieses Paket.
 let daten = ladeDaten();
+
+// Der geladene Stand ist die Grundlage für das Erkennen von Änderungen
+merkeStand();
