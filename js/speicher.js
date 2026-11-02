@@ -107,6 +107,26 @@ function speichereDaten() {
   }
 }
 
+// ============================================
+// Hilfsfunktionen zum Suchen in den Daten
+// ============================================
+
+// Person anhand ihrer ID finden (oder undefined, wenn es sie nicht gibt)
+function findePerson(id) {
+  return daten.personen.find(function (p) { return p.id === id; });
+}
+
+// Prüft, ob eine Person noch irgendwo vorkommt:
+// in einer Kasse, als Zahler einer Buchung oder bei einem Übertrag
+function personWirdVerwendet(id) {
+  const inKasse = daten.kassen.some(function (k) { return (k.personen || []).includes(id); });
+  const inBuchung = daten.buchungen.some(function (b) {
+    return b.bezahltVon === id || (b.anteile && b.anteile[id] !== undefined);
+  });
+  const inUebertrag = daten.uebertraege.some(function (u) { return u.personId === id; });
+  return inKasse || inBuchung || inUebertrag;
+}
+
 // Hier merken wir uns eine Warnung, falls beim Laden etwas schiefging
 let speicherWarnung = null;
 
