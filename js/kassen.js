@@ -222,6 +222,8 @@ function buchungsZeile(b, mitKasse) {
   // Notiz nur zeigen, wenn sie nicht genau wie die Kategorie heißt
   if (b.notiz && (!kategorie || b.notiz !== kategorie.name)) details.push(b.notiz);
   if (person) details.push((b.typ === "ausgabe" ? "privat bezahlt von " : "eingezahlt von ") + person.name);
+  const schuld = b.schuldId ? findeSchuld(b.schuldId) : null;
+  if (schuld && b.notiz !== schuld.name) details.push("für " + schuld.name);
 
   return (
     '<a class="zeile" href="#buchung/' + b.id + '">' +

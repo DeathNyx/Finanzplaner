@@ -903,3 +903,8 @@ p .farbpunkt {
 .leise a {
   color: var(--akzent);
 }
+
+/* ---------- Schulden ---------- */
+.schuld-zeile .balken {
+  margin-top: 6px;
+}

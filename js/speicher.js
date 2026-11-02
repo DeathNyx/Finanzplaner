@@ -22,7 +22,7 @@ function leereDaten() {
     buchungen: [],     // { id, kasseId, typ, betrag, datum, kategorieId, notiz, bezahltVon, anteile, vorlageId }
     uebertraege: [],   // { id, vonKasseId, nachKasseId, betrag, datum, personId, notiz, vorlageId }
     dauerauftraege: [],// Vorlagen für alles, was jeden Monat wiederkommt
-    schulden: [],      // { id, glaeubiger, restbetrag, rate, ... }
+    schulden: [],      // { id, name, glaeubiger, rest, stichtag, rate, notiz }
     ausgleiche: [],    // { id, kasseId, vonPersonId, anPersonId, betrag, datum }
     kategorien: standardKategorien(),
     einstellungen: {}

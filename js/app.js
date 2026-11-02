@@ -65,6 +65,16 @@ const bildschirme = {
     tab: "mehr",
     zeichne: zeichneDauerauftrag
   },
+  schulden: {
+    titel: "Schulden und Raten",
+    tab: "mehr",
+    zeichne: zeichneSchulden
+  },
+  schuld: {
+    titel: "Schuld",
+    tab: "mehr",
+    zeichne: zeichneSchuld
+  },
   uebertrag: {
     titel: "Übertrag",
     // Neuer Übertrag gehört zu "Buchen", ein bestehender zu "Kassen"

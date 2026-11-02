@@ -59,8 +59,14 @@ function auftragBeschreibung(d) {
   let text = "jeden " + d.tag + ". · " + wo;
   if (d.endeMonat) text += " · bis " + formatMonat(d.endeMonat);
   if (d.pausiert) text = "Pausiert · " + text;
-  else if (istBeendet(d)) text = "Beendet · " + text;
+  else if (istBeendet(d) || schuldAbbezahlt(d)) text = "Beendet · " + text;
   return text;
+}
+
+// Gehört der Auftrag zu einer Schuld, die schon abbezahlt ist?
+function schuldAbbezahlt(d) {
+  const schuld = d.schuldId ? findeSchuld(d.schuldId) : null;
+  return !!schuld && restbetrag(schuld) === 0;
 }
 
 // Ist der letzte Monat eines Auftrags schon vorbei?
@@ -89,23 +95,30 @@ function bucheAuftrag(d, monat) {
   const kasse = findeKasse(d.kasseId);
   if (!kasse) return;
 
+  // Bei Raten: höchstens so viel buchen, wie noch offen ist
+  let betrag = d.betrag;
+  const schuld = d.schuldId ? findeSchuld(d.schuldId) : null;
+  if (schuld) betrag = Math.min(betrag, restbetrag(schuld));
+  if (betrag <= 0) return;
+
   // Bei Ausgaben in gemeinsamen Kassen: Aufteilung nach der aktuellen Regel der Kasse
   let anteile = null;
   if (d.art === "ausgabe" && kasse.art === "gemeinsam") {
-    anteile = verteile(d.betrag, kasse.personen, regelGewichte(kasse));
+    anteile = verteile(betrag, kasse.personen, regelGewichte(kasse));
   }
 
   daten.buchungen.push({
     id: neueId("buc"),
     kasseId: d.kasseId,
     typ: d.art,
-    betrag: d.betrag,
+    betrag: betrag,
     datum: datum,
     kategorieId: d.kategorieId,
     notiz: d.name,
     bezahltVon: kasse.art === "gemeinsam" ? d.bezahltVon || null : null,
     anteile: anteile,
-    vorlageId: d.id
+    vorlageId: d.id,
+    schuldId: d.schuldId || null
   });
 }
 
@@ -123,6 +136,7 @@ function fuehreDauerauftraegeAus() {
     // Monat für Monat nachholen, aber höchstens bis heute
     while (monat <= dieserMonat && (!d.endeMonat || monat <= d.endeMonat)) {
       if (faelligAm(d, monat) > heuteText) break; // in diesem Monat noch nicht fällig
+      if (schuldAbbezahlt(d)) break;              // Schuld ist schon abbezahlt
       bucheAuftrag(d, monat);
       d.zuletztGebucht = monat;
       anzahl++;
@@ -138,7 +152,7 @@ function fuehreDauerauftraegeAus() {
 // Überträge zählen nicht, weil sie das Gesamtergebnis nicht ändern.
 function erwarteteDauerauftraege(monat) {
   return daten.dauerauftraege.filter(function (d) {
-    if (d.pausiert || d.art === "uebertrag") return false;
+    if (d.pausiert || d.art === "uebertrag" || schuldAbbezahlt(d)) return false;
     if (monat < d.startMonat) return false;
     if (d.endeMonat && monat > d.endeMonat) return false;
     return monat >= naechsterMonat(d);
@@ -150,7 +164,7 @@ function monatlicheSumme(art) {
   return daten.dauerauftraege
     .filter(function (d) {
       if (d.pausiert || d.art !== art) return false;
-      return !istBeendet(d);
+      return !istBeendet(d) && !schuldAbbezahlt(d);
     })
     .reduce(function (summe, d) { return summe + d.betrag; }, 0);
 }
@@ -184,7 +198,7 @@ function zeichneDauerauftraege(bereich) {
         .sort(function (a, b) { return a.tag - b.tag; })
         .forEach(function (d) {
           html +=
-            '<a class="zeile' + (d.pausiert || istBeendet(d) ? " pausiert" : "") + '" href="#dauerauftrag/' + d.id + '">' +
+            '<a class="zeile' + (d.pausiert || istBeendet(d) || schuldAbbezahlt(d) ? " pausiert" : "") + '" href="#dauerauftrag/' + d.id + '">' +
             '  <span class="zeile-text zweizeilig">' +
             "    <span>" + schuetzeText(d.name) + "</span>" +
             '    <small class="leise">' + schuetzeText(auftragBeschreibung(d)) + "</small>" +
@@ -228,7 +242,9 @@ function zeichneDauerauftrag(bereich, id) {
     return;
   }
 
-  const art = auftrag ? auftrag.art : "ausgabe";
+  // Vorausgefüllte Werte (z. B. von der Seite einer Schuld)
+  const mit = istNeu ? nimmUebergabe() : {};
+  const art = auftrag ? auftrag.art : (mit.art || "ausgabe");
   const dieserMonat = heute().slice(0, 7);
 
   function kassenOptionen(gewaehlt) {
@@ -249,18 +265,19 @@ function zeichneDauerauftrag(bereich, id) {
     '    <label><input type="radio" name="art" value="uebertrag"' + (art === "uebertrag" ? " checked" : "") + "><span>Übertrag</span></label>" +
     "  </fieldset>" +
     '  <label class="feld">Bezeichnung' +
-    '    <input id="dName" type="text" maxlength="40" autocomplete="off" value="' + schuetzeText(auftrag ? auftrag.name : "") +
+    '    <input id="dName" type="text" maxlength="40" autocomplete="off" value="' + schuetzeText(auftrag ? auftrag.name : (mit.name || "")) +
          '" placeholder="z. B. Miete, Gehalt, Netflix">' +
     "  </label>" +
     '  <label class="feld">Betrag pro Monat in €' +
     '    <input id="dBetrag" class="gross-eingabe" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" value="' +
-         (auftrag ? betragFuerEingabe(auftrag.betrag) : "") + '">' +
+         (auftrag ? betragFuerEingabe(auftrag.betrag) : (mit.betrag ? betragFuerEingabe(mit.betrag) : "")) + '">' +
     "  </label>" +
     // Teil für Ausgabe und Einnahme
     '  <div id="teilBuchung">' +
     '    <label class="feld">Kasse <select id="dKasse">' + kassenOptionen(auftrag ? auftrag.kasseId : kassen[0].id) + "</select></label>" +
     '    <label class="feld">Kategorie <select id="dKategorie"></select></label>' +
     '    <div id="dPersonBereich"></div>' +
+    '    <div id="dSchuldBereich"></div>' +
     "  </div>" +
     // Teil für Übertrag
     '  <div id="teilUebertrag">' +
@@ -305,6 +322,7 @@ function zeichneDauerauftrag(bereich, id) {
     document.getElementById("teilUebertrag").hidden = a !== "uebertrag";
     zeichneKategorien();
     zeichnePerson();
+    zeichneSchuldWahl();
     zeigeHinweis();
   }
 
@@ -337,6 +355,18 @@ function zeichneDauerauftrag(bereich, id) {
         return '<option value="' + pid + '"' + (pid === gewaehlt ? " selected" : "") + ">" + schuetzeText(personName(pid)) + "</option>";
       }).join("") +
       "</select></label>";
+  }
+
+  // "Rate oder Tilgung für" nur bei Ausgaben
+  function zeichneSchuldWahl() {
+    const bereichSchuld = document.getElementById("dSchuldBereich");
+    if (gewaehlteArt() !== "ausgabe") {
+      bereichSchuld.innerHTML = "";
+      return;
+    }
+    const vorher = document.getElementById("dSchuld");
+    const gewaehlt = vorher ? vorher.value : (auftrag ? auftrag.schuldId || "" : (mit.schuldId || ""));
+    bereichSchuld.innerHTML = schuldAuswahl("dSchuld", gewaehlt);
   }
 
   // Zeigt, wann zum ersten Mal gebucht wird
@@ -397,7 +427,8 @@ function zeichneDauerauftrag(bereich, id) {
       kategorieId: null,
       bezahltVon: null,
       vonKasseId: null,
-      nachKasseId: null
+      nachKasseId: null,
+      schuldId: null
     };
 
     if (a === "uebertrag") {
@@ -410,6 +441,8 @@ function zeichneDauerauftrag(bereich, id) {
       if (!werte.kategorieId) return zeigeFehler(fehler, "Bitte wähle eine Kategorie.");
       const feldBezahlt = document.getElementById("dBezahlt");
       werte.bezahltVon = feldBezahlt && feldBezahlt.value ? feldBezahlt.value : null;
+      const feldSchuld = document.getElementById("dSchuld");
+      if (a === "ausgabe" && feldSchuld && feldSchuld.value) werte.schuldId = feldSchuld.value;
     }
 
     if (istNeu) {

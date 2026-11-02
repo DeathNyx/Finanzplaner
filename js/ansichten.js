@@ -59,7 +59,7 @@ function zeichneMehr(bereich) {
     '  <a href="#personen">👤 Personen</a>' +
     '  <span class="bald">🏷️ Kategorien <small>kommt bald</small></span>' +
     '  <a href="#dauerauftraege">🔁 Daueraufträge</a>' +
-    '  <span class="bald">📉 Schulden <small>kommt bald</small></span>' +
+    '  <a href="#schulden">📉 Schulden und Raten</a>' +
     '  <span class="bald">💾 Backup <small>kommt bald</small></span>' +
     "</nav>" +
     '<p class="leise klein">Deine Daten liegen nur auf diesem Gerät in diesem Browser.</p>';

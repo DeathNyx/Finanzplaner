@@ -63,6 +63,19 @@ function zeichneUebersicht(bereich) {
     html += '<h2 class="abschnitt">Offene Ausgleiche</h2><div class="karte liste">' + offen + "</div>";
   }
 
+  // Schulden in Kurzform (nur wenn noch etwas offen ist)
+  const offeneSchulden = daten.schulden.filter(function (s) { return restbetrag(s) > 0; });
+  if (offeneSchulden.length > 0) {
+    const rest = offeneSchulden.reduce(function (s, x) { return s + restbetrag(x); }, 0);
+    const raten = offeneSchulden.reduce(function (s, x) { return s + (x.rate || 0); }, 0);
+    html +=
+      '<h2 class="abschnitt">Schulden</h2>' +
+      '<a class="karte summen kurz" href="#schulden">' +
+      '  <div><span class="leise">Noch offen</span><span class="betrag negativ">' + formatEuro(rest) + "</span></div>" +
+      '  <div><span class="leise">Raten im Monat</span><span class="betrag">' + formatEuro(raten) + "</span></div>" +
+      "</a>";
+  }
+
   // Dieser Monat in Kurzform
   html +=
     '<h2 class="abschnitt">' + formatMonat(monat) + "</h2>" +

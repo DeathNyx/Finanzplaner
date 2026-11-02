@@ -104,6 +104,7 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
     "  </label>" +
     '  <div id="bPerson"></div>' +
     '  <div id="bAufteilung"></div>' +
+    '  <div id="bSchuld"></div>' +
     '  <label class="feld">Notiz (freiwillig)' +
     '    <input id="bNotiz" type="text" maxlength="80" autocomplete="off" value="' +
            schuetzeText(buchung ? buchung.notiz || "" : (mit.notiz || "")) + '" placeholder="z. B. Wocheneinkauf">' +
@@ -122,6 +123,18 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
   const feldKategorie = document.getElementById("bKategorie");
   const bereichPerson = document.getElementById("bPerson");
   const bereichAufteilung = document.getElementById("bAufteilung");
+  const bereichSchuld = document.getElementById("bSchuld");
+
+  // Auswahl "Rate oder Tilgung für" (nur bei Ausgaben, nur wenn es Schulden gibt)
+  function zeichneSchuldWahl() {
+    if (zustand.typ !== "ausgabe") {
+      bereichSchuld.innerHTML = "";
+      return;
+    }
+    const vorher = document.getElementById("bSchuldWahl");
+    const gewaehlt = vorher ? vorher.value : (buchung ? buchung.schuldId || "" : (mit.schuldId || ""));
+    bereichSchuld.innerHTML = schuldAuswahl("bSchuldWahl", gewaehlt);
+  }
   const fehler = document.getElementById("fehler");
 
   // Muss die Ausgabe auf Personen aufgeteilt werden?
@@ -270,6 +283,7 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
       zeichneKategorien();
       zeichnePerson();
       zeichneAufteilung();
+      zeichneSchuldWahl();
     });
   });
 
@@ -365,8 +379,13 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
       kategorieId: kategorieId,
       notiz: notiz,
       bezahltVon: feldBezahlt && feldBezahlt.value ? feldBezahlt.value : null,
-      anteile: null
+      anteile: null,
+      schuldId: null
     };
+
+    // Gehört die Ausgabe zu einer Schuld?
+    const feldSchuld = document.getElementById("bSchuldWahl");
+    if (zustand.typ === "ausgabe" && feldSchuld && feldSchuld.value) werte.schuldId = feldSchuld.value;
 
     // Anteile nur speichern, wenn wirklich aufgeteilt wird
     if (mitAufteilung()) {
@@ -408,6 +427,7 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
   zeichneKategorien();
   zeichnePerson();
   zeichneAufteilung();
+  zeichneSchuldWahl();
   if (istNeu) feldBetrag.focus();
 }
 
