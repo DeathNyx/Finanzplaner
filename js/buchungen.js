@@ -112,7 +112,9 @@ function buchungsFormular(bereich, buchung, vorgewaehlteKasseId) {
     '  <button type="submit" class="knopf">Speichern</button>' +
     '  <button type="button" id="abbrechen" class="knopf zweit">Abbrechen</button>' +
     "</form>" +
-    (istNeu ? "" : '<button type="button" id="loeschen" class="knopf gefahr">Buchung löschen</button>');
+    (istNeu
+      ? '<p class="leise klein">Kommt das jeden Monat? <a href="#dauerauftrag/neu">Als Dauerauftrag anlegen</a>, dann bucht die App es automatisch.</p>'
+      : '<button type="button" id="loeschen" class="knopf gefahr">Buchung löschen</button>');
 
   const formular = document.getElementById("buchungFormular");
   const feldBetrag = document.getElementById("bBetrag");

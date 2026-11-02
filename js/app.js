@@ -55,6 +55,16 @@ const bildschirme = {
     tab: "kassen",
     zeichne: zeichneAusgleich
   },
+  dauerauftraege: {
+    titel: "Daueraufträge",
+    tab: "mehr",
+    zeichne: zeichneDauerauftraege
+  },
+  dauerauftrag: {
+    titel: "Dauerauftrag",
+    tab: "mehr",
+    zeichne: zeichneDauerauftrag
+  },
   uebertrag: {
     titel: "Übertrag",
     // Neuer Übertrag gehört zu "Buchen", ein bestehender zu "Kassen"
@@ -88,6 +98,12 @@ const startBildschirm = "uebersicht";
 
 // Zeigt den Bildschirm an, der gerade in der Adresse steht
 function zeigeBildschirm() {
+  // Vorher fällige Daueraufträge buchen (z. B. wenn ein neuer Monat begonnen hat)
+  const gebucht = fuehreDauerauftraegeAus();
+  if (gebucht > 0) {
+    zeigeMeldung(gebucht === 1 ? "1 Dauerauftrag wurde gebucht" : gebucht + " Daueraufträge wurden gebucht");
+  }
+
   // "#kasse/kas_abc/2026-11" wird zu name = "kasse",
   // zusatz = "kas_abc" und zusatz2 = "2026-11"
   const teile = location.hash.replace("#", "").split("/");

@@ -58,7 +58,7 @@ function zeichneMehr(bereich) {
     '<nav class="menue karte">' +
     '  <a href="#personen">👤 Personen</a>' +
     '  <span class="bald">🏷️ Kategorien <small>kommt bald</small></span>' +
-    '  <span class="bald">🔁 Daueraufträge <small>kommt bald</small></span>' +
+    '  <a href="#dauerauftraege">🔁 Daueraufträge</a>' +
     '  <span class="bald">📉 Schulden <small>kommt bald</small></span>' +
     '  <span class="bald">💾 Backup <small>kommt bald</small></span>' +
     "</nav>" +

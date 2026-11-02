@@ -133,6 +133,11 @@ function zeichneMonat(bereich, monat) {
          (a.uebrig < 0 ? " negativ" : " positiv") + '">' + formatEuro(a.uebrig) + "</span></div>" +
     "</div>";
 
+  // Was in diesem Monat noch kommt (nur aktueller und kommende Monate)
+  if (monat >= heute().slice(0, 7)) {
+    html += erwartetKarte(monat, a);
+  }
+
   if (a.einnahmen === 0 && a.ausgaben === 0) {
     html += platzhalter("In diesem Monat gibt es noch keine Einnahmen oder Ausgaben.");
   } else {
@@ -187,4 +192,32 @@ function kategorienListe(ueberschrift, werte, gesamt, typ) {
       "</div>";
   });
   return html + "</div>";
+}
+
+// Karte "Noch erwartet": Daueraufträge, die in diesem Monat noch gebucht werden,
+// und was dann voraussichtlich übrig bleibt
+function erwartetKarte(monat, auswertung) {
+  const erwartet = erwarteteDauerauftraege(monat)
+    .sort(function (x, y) { return x.tag - y.tag; });
+  if (erwartet.length === 0) return "";
+
+  let plus = 0;
+  let minus = 0;
+  let zeilen = "";
+  erwartet.forEach(function (d) {
+    if (d.art === "einnahme") plus += d.betrag;
+    else minus += d.betrag;
+    zeilen +=
+      '<div class="posten"><span>' + formatDatum(faelligAm(d, monat)).slice(0, 6) + " " + schuetzeText(d.name) + "</span>" +
+      betragMitVorzeichen(d.betrag, d.art) + "</div>";
+  });
+
+  const voraussichtlich = auswertung.uebrig + plus - minus;
+  return (
+    '<h2 class="abschnitt">Noch erwartet (Daueraufträge)</h2>' +
+    '<div class="karte">' + zeilen +
+    '  <div class="posten summe"><span>Voraussichtlich übrig</span><span class="betrag' +
+         (voraussichtlich < 0 ? " negativ" : "") + '">' + formatEuro(voraussichtlich) + "</span></div>" +
+    "</div>"
+  );
 }

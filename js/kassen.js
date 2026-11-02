@@ -219,13 +219,14 @@ function buchungsZeile(b, mitKasse) {
     const kasse = findeKasse(b.kasseId);
     if (kasse) details.push(kasse.name);
   }
-  if (b.notiz) details.push(b.notiz);
+  // Notiz nur zeigen, wenn sie nicht genau wie die Kategorie heißt
+  if (b.notiz && (!kategorie || b.notiz !== kategorie.name)) details.push(b.notiz);
   if (person) details.push((b.typ === "ausgabe" ? "privat bezahlt von " : "eingezahlt von ") + person.name);
 
   return (
     '<a class="zeile" href="#buchung/' + b.id + '">' +
     '  <span class="zeile-text zweizeilig">' +
-    "    <span>" + schuetzeText(kategorie ? kategorie.name : "Ohne Kategorie") + "</span>" +
+    "    <span>" + (b.vorlageId ? "🔁 " : "") + schuetzeText(kategorie ? kategorie.name : "Ohne Kategorie") + "</span>" +
     '    <small class="leise">' + schuetzeText(details.join(" · ")) + "</small>" +
     "  </span>" +
     betragMitVorzeichen(b.betrag, b.typ) +
@@ -248,7 +249,7 @@ function uebertragsZeile(u, kasseId) {
   return (
     '<a class="zeile" href="#uebertrag/' + u.id + '">' +
     '  <span class="zeile-text zweizeilig">' +
-    "    <span>⇄ " + (hinaus ? "An " : "Von ") + schuetzeText(andere ? andere.name : "gelöschte Kasse") + "</span>" +
+    "    <span>" + (u.vorlageId ? "🔁 " : "⇄ ") + (hinaus ? "An " : "Von ") + schuetzeText(andere ? andere.name : "gelöschte Kasse") + "</span>" +
     '    <small class="leise">' + schuetzeText(details.join(" · ")) + "</small>" +
     "  </span>" +
     betragMitVorzeichen(u.betrag, hinaus ? "ausgabe" : "einnahme") +

@@ -126,7 +126,8 @@ function personWirdVerwendet(id) {
   });
   const inUebertrag = daten.uebertraege.some(function (u) { return u.personId === id; });
   const inAusgleich = daten.ausgleiche.some(function (a) { return a.vonPersonId === id || a.anPersonId === id; });
-  return inKasse || inBuchung || inUebertrag || inAusgleich;
+  const inDauerauftrag = daten.dauerauftraege.some(function (d) { return d.bezahltVon === id; });
+  return inKasse || inBuchung || inUebertrag || inAusgleich || inDauerauftrag;
 }
 
 // Kategorie anhand ihrer ID finden

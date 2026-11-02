@@ -867,3 +867,39 @@ p .farbpunkt {
 .balken .einnahme {
   background: #1a7f37;
 }
+
+/* ---------- Daueraufträge ---------- */
+.zeile.pausiert {
+  opacity: 0.55;
+}
+
+/* Hinweis in einem Formular (z. B. wann zum ersten Mal gebucht wird) */
+.hinweis {
+  color: var(--text-leise);
+  font-size: 0.9rem;
+}
+
+.hinweis:empty {
+  display: none;
+}
+
+/* Ein Häkchen mit Text daneben, groß genug für den Finger */
+.schalter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.schalter input {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--akzent);
+}
+
+.klein a,
+.leise a {
+  color: var(--akzent);
+}
