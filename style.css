@@ -1,0 +1,126 @@
+/* ============================================
+   Aussehen der App. Mobil zuerst gedacht:
+   große Schrift, große Knöpfe, alles gut lesbar.
+   ============================================ */
+
+/* Farben an einer Stelle, damit man sie leicht ändern kann */
+:root {
+  --hintergrund: #f4f6fa;
+  --flaeche: #ffffff;
+  --text: #1c2330;
+  --text-leise: #5b6577;
+  --akzent: #1f6feb;
+  --rahmen: #dde2ea;
+  --navi-hoehe: 68px;
+}
+
+/* Dunkler Modus, wenn das Handy auf dunkel eingestellt ist */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hintergrund: #11151c;
+    --flaeche: #1b212b;
+    --text: #e8ecf2;
+    --text-leise: #9aa4b5;
+    --akzent: #4c8dff;
+    --rahmen: #2c3442;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  background: var(--hintergrund);
+  color: var(--text);
+}
+
+/* Kopfzeile oben, bleibt beim Scrollen sichtbar */
+.kopf {
+  position: sticky;
+  top: 0;
+  background: var(--akzent);
+  color: #fff;
+  padding: 14px 16px;
+  padding-top: calc(14px + env(safe-area-inset-top));
+}
+
+.kopf h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+/* Inhaltsbereich. Unten Platz lassen, damit die Navi nichts verdeckt */
+.inhalt {
+  padding: 16px;
+  padding-bottom: calc(var(--navi-hoehe) + 24px + env(safe-area-inset-bottom));
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Eine Karte ist ein weißer Kasten mit runden Ecken */
+.karte {
+  background: var(--flaeche);
+  border: 1px solid var(--rahmen);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.leise {
+  color: var(--text-leise);
+}
+
+/* Navigationsleiste unten, immer sichtbar */
+.navi {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background: var(--flaeche);
+  border-top: 1px solid var(--rahmen);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navi a {
+  flex: 1;
+  min-height: var(--navi-hoehe);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--text-leise);
+  text-decoration: none;
+}
+
+.navi .symbol {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Der gerade geöffnete Bildschirm wird farbig hervorgehoben */
+.navi a.aktiv {
+  color: var(--akzent);
+  font-weight: 600;
+}
+
+/* Der Buchen Knopf in der Mitte fällt besonders auf */
+.navi a.plus .symbol {
+  background: var(--akzent);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
