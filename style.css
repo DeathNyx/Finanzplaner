@@ -751,3 +751,119 @@ p .farbpunkt {
   border-bottom: none;
   margin-bottom: 0;
 }
+
+/* ---------- Übersicht ---------- */
+.gesamt-gross {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gesamt-gross .betrag.gross {
+  font-size: 2.1rem;
+}
+
+/* Überschrift über einem Abschnitt */
+.abschnitt {
+  font-size: 1rem;
+  color: var(--text-leise);
+  margin: 20px 4px 8px;
+}
+
+/* Kassen als Kacheln, zwei nebeneinander */
+.kacheln {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.kachel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 96px;
+  padding: 12px 14px;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--flaeche);
+  border: 1px solid var(--rahmen);
+  border-top: 6px solid var(--kassenfarbe);
+  border-radius: 14px;
+  min-width: 0;
+}
+
+.kachel-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kachel small {
+  font-size: 0.8rem;
+}
+
+/* Monatskarte auf der Übersicht ist antippbar */
+.summen.kurz {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.summe-gesamt.gross-zeile {
+  font-size: 1.2rem;
+}
+
+/* Anleitung beim ersten Start */
+.schritte {
+  padding-left: 22px;
+}
+
+.schritte li {
+  margin-bottom: 10px;
+}
+
+.schritte li.erledigt {
+  color: var(--text-leise);
+  text-decoration: line-through;
+}
+
+.schritte a {
+  color: var(--akzent);
+  font-weight: 600;
+}
+
+/* ---------- Kategorien mit Balken ---------- */
+.kategorie {
+  margin-bottom: 10px;
+}
+
+.kategorie:last-child {
+  margin-bottom: 0;
+}
+
+.kategorie .posten .klein {
+  margin: 0 8px 0 0;
+}
+
+.balken {
+  height: 8px;
+  background: var(--hintergrund);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.balken span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.balken .ausgabe {
+  background: #cf222e;
+}
+
+.balken .einnahme {
+  background: #1a7f37;
+}

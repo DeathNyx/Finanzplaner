@@ -62,30 +62,7 @@ function zeichneMehr(bereich) {
     '  <span class="bald">📉 Schulden <small>kommt bald</small></span>' +
     '  <span class="bald">💾 Backup <small>kommt bald</small></span>' +
     "</nav>" +
-    '<div class="karte">' +
-    "  <h2>Testbereich</h2>" +
-    '  <p class="leise">Dieser Bereich ist nur zum Ausprobieren und wird später entfernt.</p>' +
-    "  <p>Heute ist der <strong>" + formatDatum(heute()) + "</strong> (" + formatMonat(heute().slice(0, 7)) + ").</p>" +
-    "  <p>Die App wurde auf diesem Gerät schon <strong>" + daten.einstellungen.anzahlStarts + " mal</strong> geöffnet.</p>" +
-    '  <label class="feld">Betrag eingeben' +
-    '    <input id="testBetrag" type="text" inputmode="decimal" placeholder="z. B. 1234,5">' +
-    "  </label>" +
-    '  <p id="testErgebnis" class="leise">Noch nichts eingegeben.</p>' +
-    "</div>";
-
-  // Bei jeder Eingabe sofort das Ergebnis anzeigen
-  const eingabe = document.getElementById("testBetrag");
-  const ergebnis = document.getElementById("testErgebnis");
-  eingabe.addEventListener("input", function () {
-    const cent = leseBetrag(eingabe.value);
-    if (eingabe.value.trim() === "") {
-      ergebnis.textContent = "Noch nichts eingegeben.";
-    } else if (cent === null) {
-      ergebnis.textContent = "Das ist kein gültiger Betrag.";
-    } else {
-      ergebnis.textContent = "Anzeige: " + formatEuro(cent) + " · gespeichert als " + cent + " Cent";
-    }
-  });
+    '<p class="leise klein">Deine Daten liegen nur auf diesem Gerät in diesem Browser.</p>';
 }
 
 // Fehlermeldung im Formular anzeigen

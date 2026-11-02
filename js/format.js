@@ -12,9 +12,10 @@ const euroFormat = new Intl.NumberFormat("de-DE", {
   currency: "EUR"
 });
 
-// Cent in Euro Text umwandeln: 123456 wird zu "1.234,56 €"
+// Cent in Euro Text umwandeln: 123456 wird zu "1.234,56 €".
+// Negative Beträge bekommen ein echtes Minuszeichen (−), das ist besser lesbar.
 function formatEuro(cent) {
-  return euroFormat.format((cent || 0) / 100);
+  return euroFormat.format((cent || 0) / 100).replace("-", "−");
 }
 
 // Cent als Text für ein Eingabefeld: 123456 wird zu "1234,56".
@@ -29,8 +30,8 @@ function betragFuerEingabe(cent) {
 function leseBetrag(text) {
   if (text === undefined || text === null) return null;
 
-  // Leerzeichen und Euro Zeichen entfernen
-  let t = String(text).replace(/[\s€]/g, "");
+  // Leerzeichen und Euro Zeichen entfernen, langes Minus wie kurzes behandeln
+  let t = String(text).replace(/[\s€]/g, "").replace("−", "-");
   if (t === "") return null;
 
   if (t.includes(",")) {

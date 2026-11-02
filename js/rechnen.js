@@ -243,3 +243,41 @@ function ausgleich(kasse) {
     einzahlen: schuldner.filter(function (s) { return s.offen > 0; })
   };
 }
+
+// ============================================
+// Auswertung eines Monats über alle Kassen.
+//
+// Gezählt werden alle Einnahmen und Ausgaben in allen Kassen
+// (auch archivierten, damit alte Monate richtig bleiben).
+// Überträge zählen nicht: Das Geld ist dabei nur woanders.
+// ============================================
+function monatsAuswertung(monat) {
+  const ergebnis = {
+    einnahmen: 0,
+    ausgaben: 0,
+    proKasse: {},          // kasseId: { einnahmen, ausgaben }
+    ausgabenKategorien: {},  // kategorieId: Betrag
+    einnahmenKategorien: {}
+  };
+
+  daten.buchungen.forEach(function (b) {
+    if (!b.datum.startsWith(monat)) return;
+
+    if (!ergebnis.proKasse[b.kasseId]) ergebnis.proKasse[b.kasseId] = { einnahmen: 0, ausgaben: 0 };
+    const kasse = ergebnis.proKasse[b.kasseId];
+
+    if (b.typ === "einnahme") {
+      ergebnis.einnahmen += b.betrag;
+      kasse.einnahmen += b.betrag;
+      ergebnis.einnahmenKategorien[b.kategorieId] = (ergebnis.einnahmenKategorien[b.kategorieId] || 0) + b.betrag;
+    }
+    if (b.typ === "ausgabe") {
+      ergebnis.ausgaben += b.betrag;
+      kasse.ausgaben += b.betrag;
+      ergebnis.ausgabenKategorien[b.kategorieId] = (ergebnis.ausgabenKategorien[b.kategorieId] || 0) + b.betrag;
+    }
+  });
+
+  ergebnis.uebrig = ergebnis.einnahmen - ergebnis.ausgaben;
+  return ergebnis;
+}

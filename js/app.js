@@ -23,9 +23,7 @@ const bildschirme = {
   uebersicht: {
     titel: "Übersicht",
     tab: "uebersicht",
-    zeichne: function (bereich) {
-      bereich.innerHTML = platzhalter("Hier siehst du bald alle Kassen und dein Gesamtvermögen.");
-    }
+    zeichne: zeichneUebersicht
   },
   kassen: {
     titel: "Kassen",
@@ -64,11 +62,9 @@ const bildschirme = {
     zeichne: zeichneUebertrag
   },
   monat: {
-    titel: "Monat",
+    titel: "Monatsübersicht",
     tab: "monat",
-    zeichne: function (bereich) {
-      bereich.innerHTML = platzhalter("Hier siehst du bald, was am Monatsende übrig bleibt.");
-    }
+    zeichne: zeichneMonat
   },
   mehr: {
     titel: "Mehr",
@@ -133,9 +129,11 @@ function zeigeBildschirm() {
   window.scrollTo(0, 0);
 }
 
-// Beim Start mitzählen, wie oft die App geöffnet wurde (nur zum Testen)
-daten.einstellungen.anzahlStarts = (daten.einstellungen.anzahlStarts || 0) + 1;
-speichereDaten();
+// Den Testzähler aus Schritt 2 aufräumen, falls er noch gespeichert ist
+if (daten.einstellungen.anzahlStarts !== undefined) {
+  delete daten.einstellungen.anzahlStarts;
+  speichereDaten();
+}
 
 // Zählt, wie oft innerhalb der App der Bildschirm gewechselt wurde
 let anzahlWechsel = 0;

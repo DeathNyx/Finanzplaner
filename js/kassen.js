@@ -207,13 +207,18 @@ function zeichneKasseSeite(bereich, id, monat) {
   });
 }
 
-// Eine Zeile in der Buchungsliste einer Kasse
-function buchungsZeile(b) {
+// Eine Zeile in der Buchungsliste.
+// Mit "mitKasse" steht zusätzlich der Name der Kasse dabei.
+function buchungsZeile(b, mitKasse) {
   const kategorie = findeKategorie(b.kategorieId);
   const person = b.bezahltVon ? findePerson(b.bezahltVon) : null;
 
   // Kleine Zeile unter dem Namen: Datum, Notiz, wer bezahlt hat
   const details = [formatDatum(b.datum)];
+  if (mitKasse) {
+    const kasse = findeKasse(b.kasseId);
+    if (kasse) details.push(kasse.name);
+  }
   if (b.notiz) details.push(b.notiz);
   if (person) details.push((b.typ === "ausgabe" ? "privat bezahlt von " : "eingezahlt von ") + person.name);
 
