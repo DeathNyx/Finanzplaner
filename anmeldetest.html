@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f6feb">
+  <title>Anmeldetest · Finanzplaner</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Nur für diese Testseite */
+    .protokoll {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+    .status-ok { color: #1a7f37; font-weight: 700; }
+    @media (prefers-color-scheme: dark) { .status-ok { color: #3fb950; } }
+  </style>
+</head>
+<body>
+  <header class="kopf">
+    <h1>Anmeldetest</h1>
+  </header>
+
+  <main class="inhalt" style="padding-bottom: 40px">
+    <div class="karte">
+      <h2>Wozu diese Seite?</h2>
+      <p class="leise">Sie prüft nur, ob die Anmeldung mit Google auf diesem Handy funktioniert. Deine Finanzdaten werden dabei nicht berührt und nicht hochgeladen.</p>
+      <p id="umgebung" class="leise klein"></p>
+    </div>
+
+    <div class="karte">
+      <h2>Status</h2>
+      <p id="status">Firebase wird geladen …</p>
+    </div>
+
+    <div id="abmeldeBereich" class="karte">
+      <h2>1. Anmelden</h2>
+      <p class="leise klein">Probiere zuerst Weg A. Nur wenn er nicht klappt, Weg B.</p>
+      <button type="button" id="popup" class="knopf" disabled>A: Mit Google anmelden (Fenster)</button>
+      <button type="button" id="weiterleitung" class="knopf zweit" disabled>B: Mit Google anmelden (Weiterleitung)</button>
+    </div>
+
+    <div id="angemeldetBereich" class="karte" hidden>
+      <h2>2. Datenbank prüfen</h2>
+      <p class="leise klein">Die Datenbank ist noch für alle gesperrt. Wenn hier „gesperrt wie gewünscht“ erscheint, ist die Verbindung in Ordnung.</p>
+      <button type="button" id="datenbank" class="knopf">Verbindung zur Datenbank prüfen</button>
+      <button type="button" id="abmelden" class="knopf zweit">Abmelden</button>
+    </div>
+
+    <div class="karte">
+      <h2>Protokoll</h2>
+      <p class="leise klein">Schick mir dieses Protokoll, dann sehe ich genau, was passiert ist.</p>
+      <pre id="protokoll" class="protokoll"></pre>
+      <button type="button" id="kopieren" class="knopf">Protokoll kopieren</button>
+    </div>
+
+    <a class="knopf zweit" href="./#mehr">Zurück zur App</a>
+  </main>
+
+  <script type="module">
+    // ============================================
+    // Anmeldetest für Firebase (vorübergehend).
+    // Prüft: Laden der Bausteine, Anmeldung per Fenster oder
+    // Weiterleitung, Verbindung zur Datenbank.
+    // ============================================
+    import { FIREBASE_KONFIG, FIREBASE_VERSION } from "./js/firebase-konfig.js";
+
+    const zeilen = [];
+
+    // Eine Zeile ins Protokoll schreiben (mit Uhrzeit)
+    function protokolliere(text) {
+      const zeit = new Date().toLocaleTimeString("de-DE");
+      zeilen.push(zeit + "  " + text);
+      document.getElementById("protokoll").textContent = zeilen.join("\n");
+    }
+
+    // Status oben anzeigen (gut = grüner Text)
+    function status(text, gut) {
+      const feld = document.getElementById("status");
+      feld.textContent = text;
+      feld.className = gut ? "status-ok" : "";
+    }
+
+    // Wo läuft die Seite gerade?
+    const alsApp = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    const umgebung = (alsApp ? "Läuft als installierte App" : "Läuft im Browser") +
+      " · " + (navigator.onLine ? "online" : "offline") + " · " + navigator.userAgent;
+    document.getElementById("umgebung").textContent = umgebung;
+    protokolliere(alsApp ? "Umgebung: installierte App" : "Umgebung: Browser");
+    protokolliere("Gerät: " + navigator.userAgent);
+
+    // Protokoll in die Zwischenablage kopieren
+    document.getElementById("kopieren").addEventListener("click", async function () {
+      const text = "Anmeldetest Finanzplaner\n" + zeilen.join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        this.textContent = "Kopiert ✓";
+      } catch (fehler) {
+        this.textContent = "Kopieren ging nicht, bitte Screenshot machen";
+      }
+    });
+
+    // Fehler verständlich beschreiben
+    function fehlerText(fehler) {
+      const code = fehler && fehler.code ? fehler.code : "unbekannt";
+      const erklaerungen = {
+        "auth/popup-blocked": "Das Anmeldefenster wurde blockiert.",
+        "auth/popup-closed-by-user": "Das Anmeldefenster wurde geschlossen, bevor die Anmeldung fertig war.",
+        "auth/cancelled-popup-request": "Die Anmeldung wurde abgebrochen.",
+        "auth/unauthorized-domain": "Diese Adresse ist in Firebase nicht freigegeben (Autorisierte Domains).",
+        "auth/operation-not-allowed": "Die Google Anmeldung ist in Firebase nicht aktiviert.",
+        "auth/network-request-failed": "Keine Verbindung zum Internet oder zu Google.",
+        "auth/web-storage-unsupported": "Der Browser erlaubt keinen Speicher für die Anmeldung."
+      };
+      return code + (erklaerungen[code] ? " (" + erklaerungen[code] + ")" : "") +
+        (fehler && fehler.message ? " · " + fehler.message : "");
+    }
+
+    async function starte() {
+      const basis = "https://www.gstatic.com/firebasejs/" + FIREBASE_VERSION + "/";
+      let appModul, authModul, datenbankModul;
+      try {
+        [appModul, authModul, datenbankModul] = await Promise.all([
+          import(basis + "firebase-app.js"),
+          import(basis + "firebase-auth.js"),
+          import(basis + "firebase-firestore.js")
+        ]);
+        protokolliere("Firebase Bausteine geladen (Version " + FIREBASE_VERSION + ")");
+      } catch (fehler) {
+        status("Firebase konnte nicht geladen werden. Bist du online?");
+        protokolliere("FEHLER beim Laden: " + (fehler && fehler.message));
+        return;
+      }
+
+      const app = appModul.initializeApp(FIREBASE_KONFIG);
+      const auth = authModul.getAuth(app);
+      auth.languageCode = "de";
+      const anbieter = new authModul.GoogleAuthProvider();
+      // Immer die Kontoauswahl zeigen
+      anbieter.setCustomParameters({ prompt: "select_account" });
+
+      // Anzeige je nach Anmeldestand
+      authModul.onAuthStateChanged(auth, function (nutzer) {
+        document.getElementById("angemeldetBereich").hidden = !nutzer;
+        if (nutzer) {
+          status("Angemeldet als " + (nutzer.displayName || "") + " (" + nutzer.email + ") ✓", true);
+          protokolliere("Angemeldet: " + nutzer.email);
+        } else {
+          status("Nicht angemeldet.");
+        }
+      });
+
+      // Rückkehr von Weg B (Weiterleitung) auswerten
+      try {
+        const ergebnis = await authModul.getRedirectResult(auth);
+        if (ergebnis) protokolliere("Weg B (Weiterleitung) erfolgreich ✓");
+      } catch (fehler) {
+        protokolliere("Weg B FEHLER: " + fehlerText(fehler));
+      }
+
+      // Knöpfe freigeben
+      const knopfA = document.getElementById("popup");
+      const knopfB = document.getElementById("weiterleitung");
+      knopfA.disabled = false;
+      knopfB.disabled = false;
+
+      // Weg A: Anmeldung in einem eigenen Fenster
+      knopfA.addEventListener("click", async function () {
+        protokolliere("Weg A gestartet");
+        try {
+          await authModul.signInWithPopup(auth, anbieter);
+          protokolliere("Weg A (Fenster) erfolgreich ✓");
+        } catch (fehler) {
+          protokolliere("Weg A FEHLER: " + fehlerText(fehler));
+          status("Weg A hat nicht geklappt. Probiere Weg B.");
+        }
+      });
+
+      // Weg B: Weiterleitung zu Google und zurück
+      knopfB.addEventListener("click", async function () {
+        protokolliere("Weg B gestartet, Seite wird gleich verlassen …");
+        try {
+          await authModul.signInWithRedirect(auth, anbieter);
+        } catch (fehler) {
+          protokolliere("Weg B FEHLER: " + fehlerText(fehler));
+        }
+      });
+
+      // Verbindung zur Datenbank prüfen (Zugriff ist absichtlich noch gesperrt)
+      document.getElementById("datenbank").addEventListener("click", async function () {
+        protokolliere("Datenbank wird geprüft …");
+        const db = datenbankModul.getFirestore(app);
+        try {
+          await datenbankModul.getDoc(datenbankModul.doc(db, "verbindungstest", "probe"));
+          protokolliere("Datenbank: Lesen hat geklappt (unerwartet, die Regeln sind offen!)");
+        } catch (fehler) {
+          if (fehler.code === "permission-denied") {
+            protokolliere("Datenbank erreicht, Zugriff gesperrt wie gewünscht ✓");
+            status("Alles in Ordnung: Anmeldung und Datenbank funktionieren ✓", true);
+          } else {
+            protokolliere("Datenbank FEHLER: " + fehlerText(fehler));
+          }
+        }
+      });
+
+      // Abmelden
+      document.getElementById("abmelden").addEventListener("click", async function () {
+        await authModul.signOut(auth);
+        protokolliere("Abgemeldet");
+      });
+    }
+
+    starte();
+  </script>
+</body>
+</html>
